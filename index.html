@@ -1,487 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radical battle - simplify and survive</title>
-<style>
-  :root {
-    --bg: #1a1b1e;
-    --panel: #24262b;
-    --panel-light: #2e3035;
-    --border: #3a3c42;
-    --text-primary: #f2f2f0;
-    --text-secondary: #a8a9ad;
-    --text-muted: #6e7077;
-    --accent: #5b8cff;
-    --accent-bg: rgba(91, 140, 255, 0.15);
-    --success: #4cc38a;
-    --success-bg: rgba(76, 195, 138, 0.15);
-    --danger: #e2574c;
-    --danger-bg: rgba(226, 87, 76, 0.15);
-    --warning: #e0a93e;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-  }
-
-  .wrap {
-    width: 100%;
-    max-width: 480px;
-  }
-
-  h1 {
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    margin: 0 0 4px;
-  }
-
-  .subtitle {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin: 0 0 24px;
-  }
-
-  .meta-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
-
-  .meta-row .level-label {
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-
-  .battle-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .battle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  .fighter {
-    flex: 1;
-  }
-
-  .fighter.right { text-align: right; }
-
-  .fighter-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-  }
-
-  .fighter.right .fighter-label { justify-content: flex-end; }
-
-  .hp-bar-bg {
-    height: 14px;
-    background: var(--bg);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .hp-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.4s ease;
-  }
-
-  .fighter.right .hp-bar-fill { margin-left: auto; }
-
-  .hp-label {
-    font-size: 12px;
-    font-weight: 500;
-    margin: 4px 0 0;
-  }
-
-  .fighter.right .hp-label { text-align: right; }
-
-  .vs-icon {
-    font-size: 22px;
-    color: var(--text-muted);
-    transform: scale(1);
-    transition: transform 0.15s;
-    flex-shrink: 0;
-  }
-
-  .vs-icon.shake { transform: scale(1.3); }
-
-  .log-box {
-    background: var(--accent-bg);
-    color: var(--accent);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    font-size: 14px;
-    min-height: 20px;
-  }
-
-  .question-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-
-  .question-text {
-    font-size: 21px;
-    font-weight: 500;
-    line-height: 1.4;
-    margin: 0;
-  }
-
-  .choices {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .choice-btn {
-    width: 100%;
-    padding: 16px 12px;
-    font-size: 17px;
-    font-weight: 500;
-    border-radius: 14px;
-    border: 1.5px solid var(--border);
-    background: var(--panel-light);
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, opacity 0.15s, transform 0.1s;
-    font-family: inherit;
-    text-align: center;
-  }
-
-  .choice-btn:hover:not(:disabled) {
-    background: var(--border);
-    border-color: var(--text-muted);
-  }
-
-  .choice-btn:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-
-  .choice-btn:disabled { cursor: default; }
-
-  .choice-btn.correct {
-    border-color: var(--success);
-    background: var(--success-bg);
-    color: var(--success);
-  }
-
-  .choice-btn.wrong {
-    border-color: var(--danger);
-    background: var(--danger-bg);
-    color: var(--danger);
-  }
-
-  .choice-btn.faded { opacity: 0.4; }
-
-  .next-wrap { margin-top: 16px; }
-
-  .primary-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 14px;
-    border: 1.5px solid var(--accent);
-    background: var(--accent);
-    color: white;
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  .primary-btn:hover { opacity: 0.92; }
-  .primary-btn:active { transform: scale(0.98); }
-
-  .end-screen {
-    text-align: center;
-    padding: 24px 16px;
-  }
-
-  .end-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 30px;
-  }
-
-  .end-icon.win { background: var(--success-bg); color: var(--success); }
-  .end-icon.lose { background: var(--danger-bg); color: var(--danger); }
-
-  .end-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 4px;
-  }
-
-  .end-message {
-    font-size: 15px;
-    color: var(--text-secondary);
-    margin: 0 0 24px;
-    max-width: 360px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.5;
-  }
-
-  .footer-note {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 20px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade 8 Mathematics Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f6f8fa;
+      color: #333;
+    }
+    header {
+      background-color: #3f51b5;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    select, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+    #summary {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #eef2f7;
+      border-left: 4px solid #3f51b5;
+    }
+    .question {
+      margin-top: 1rem;
+    }
+    .options label {
+      display: block;
+      padding: 0.25rem 0;
+    }
+    .hidden {
+      display: none;
+    }
+    #result {
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-
-<div class="wrap">
-  <h1>Radical battle</h1>
-  <p class="subtitle">Simplify radicals correctly to defeat each monster</p>
-  <div id="app"></div>
-  <p class="footer-note">Answer right to attack. Answer wrong and the monster strikes back.</p>
-</div>
-
-<script>
-const questions = [
-  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a8 + \u221a18.", choices: ["5\u221a2", "10\u221a2", "\u221a26", "6\u221a2"], answer: "5\u221a2" },
-  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a12 + \u221a27.", choices: ["5\u221a3", "6\u221a3", "\u221a39", "3\u221a5"], answer: "5\u221a3" },
-  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a20 + \u221a45.", choices: ["5\u221a5", "7\u221a5", "\u221a65", "10\u221a5"], answer: "5\u221a5" },
-  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify \u221a6 \u00d7 \u221a24.", choices: ["12", "6\u221a4", "\u221a30", "24\u221a6"], answer: "12" },
-  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify 2\u221a5 \u00d7 3\u221a20.", choices: ["60", "30\u221a5", "12\u221a25", "6\u221a100"], answer: "60" },
-  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify 4\u221a3 \u00d7 2\u221a12.", choices: ["48", "24\u221a3", "8\u221a36", "16\u221a3"], answer: "48" },
-  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a18 + \u221a8 + \u221a50.", choices: ["10\u221a2", "8\u221a2", "12\u221a2", "\u221a76"], answer: "10\u221a2" },
-  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a27 + \u221a75 - \u221a12.", choices: ["6\u221a3", "8\u221a3", "4\u221a3", "\u221a90"], answer: "6\u221a3" },
-  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a80 + \u221a45 - \u221a20.", choices: ["5\u221a5", "6\u221a5", "10\u221a5", "\u221a105"], answer: "5\u221a5" },
-  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (\u221a2)(\u221a18) + \u221a8.", choices: ["6 + 2\u221a2", "8\u221a2", "6\u221a2", "10"], answer: "6 + 2\u221a2" },
-  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (2\u221a3)(\u221a12) + \u221a27.", choices: ["12 + 3\u221a3", "15\u221a3", "24", "9\u221a3"], answer: "12 + 3\u221a3" },
-  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (\u221a3 + \u221a12)(\u221a3).", choices: ["9", "6\u221a3", "12", "3 + 2\u221a3"], answer: "9" },
-  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a2 + \u221a8)(\u221a18).", choices: ["18", "12\u221a2", "9\u221a2", "24"], answer: "18" },
-  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a5 + \u221a45)(\u221a20).", choices: ["40", "20\u221a5", "50", "30\u221a5"], answer: "40" },
-  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a6 + \u221a24)(\u221a6).", choices: ["18", "12", "24", "6\u221a30"], answer: "18" },
-  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a2 + \u221a3)\u00b2.", choices: ["5 + 2\u221a6", "5 + \u221a6", "6 + 2\u221a5", "2\u221a6"], answer: "5 + 2\u221a6" },
-  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a5 + \u221a20)\u00b2.", choices: ["45", "25", "30\u221a5", "5 + 2\u221a100"], answer: "45" },
-  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a7 + \u221a28)(\u221a7).", choices: ["21", "14\u221a7", "28", "7 + \u221a196"], answer: "21" },
-  { level: 7, title: "Final boss", monster: "Radical overlord", monsterHp: 100, question: "Simplify (\u221a3 + \u221a12)(\u221a27 + \u221a75).", choices: ["72", "36\u221a3", "60", "24\u221a3"], answer: "72" }
-];
-
-const PLAYER_MAX_HP = 100;
-const DAMAGE_PER_HIT = 25;
-const MONSTER_COUNTERATTACK = 15;
-
-let current = 0;
-let playerHp = PLAYER_MAX_HP;
-let monsterHp = questions[0].monsterHp;
-let selected = null;
-let answered = false;
-let gameOver = false;
-let victory = false;
-let log = "A " + questions[0].monster + " blocks your path. Answer to attack.";
-let shakeMonster = false;
-let shakePlayer = false;
-
-const root = document.getElementById('app');
-
-function hpColor(pct) {
-  if (pct > 0.5) return 'var(--success)';
-  if (pct > 0.2) return 'var(--warning)';
-  return 'var(--danger)';
-}
-
-function render() {
-  if (gameOver) {
-    renderEnd();
-    return;
-  }
-  const q = questions[current];
-  const monsterPct = monsterHp / q.monsterHp;
-  const playerPct = playerHp / PLAYER_MAX_HP;
-
-  root.innerHTML = `
-    <div class="meta-row">
-      <span class="level-label">Level ${q.level} &middot; ${q.title}</span>
-      <span>Stage ${current + 1} of ${questions.length}</span>
+  <header>
+    <h1>Grade 8 Mathematics Quiz</h1>
+  </header>
+  <main>
+    <label for="chapterSelect"><strong>Select a chapter:</strong></label>
+    <select id="chapterSelect"></select>
+    <div id="summary"></div>
+    <button id="startBtn" class="hidden">Start Quiz</button>
+    <div id="quiz" class="hidden">
+      <div id="questionContainer" class="question"></div>
+      <div id="options" class="options"></div>
+      <button id="nextBtn">Next</button>
     </div>
-
-    <div class="battle-panel">
-      <div class="battle-row">
-        <div class="fighter">
-          <div class="fighter-label">You</div>
-          <div class="hp-bar-bg">
-            <div class="hp-bar-fill" style="width:${Math.max(playerPct*100,0)}%; background:${hpColor(playerPct)};"></div>
-          </div>
-          <p class="hp-label" style="color:${hpColor(playerPct)};">${Math.max(playerHp,0)} / ${PLAYER_MAX_HP} HP</p>
-        </div>
-        <div class="vs-icon${shakeMonster || shakePlayer ? ' shake' : ''}">&#9876;</div>
-        <div class="fighter right">
-          <div class="fighter-label">${q.monster}</div>
-          <div class="hp-bar-bg">
-            <div class="hp-bar-fill" style="width:${Math.max(monsterPct*100,0)}%; background:${hpColor(monsterPct)};"></div>
-          </div>
-          <p class="hp-label" style="color:${hpColor(monsterPct)};">${Math.max(monsterHp,0)} / ${q.monsterHp} HP</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="log-box">${log}</div>
-
-    <div class="question-panel">
-      <p class="question-text">${q.question}</p>
-    </div>
-
-    <div class="choices" id="choices"></div>
-    <div class="next-wrap" id="next-wrap"></div>
-  `;
-
-  const choicesEl = root.querySelector('#choices');
-  q.choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = choice;
-    btn.onclick = () => selectChoice(choice);
-    if (answered) {
-      btn.disabled = true;
-      if (choice === q.answer) {
-        btn.classList.add('correct');
-      } else if (choice === selected) {
-        btn.classList.add('wrong');
-      } else {
-        btn.classList.add('faded');
+    <!-- Results are displayed outside of the quiz container so they remain visible when the quiz is hidden -->
+    <div id="result" class="hidden"></div>
+  </main>
+  <script>
+    // Data for each chapter: title, summary and questions with options and answers
+    // Data for each chapter: title, summary, optional image and at least 10 questions
+    const chapters = [
+      {
+        title: "Powers and Exponents",
+        summary: "Exponents are a shorthand for repeated multiplication. The expression a^n means multiply a by itself n times. Basic rules include the product rule a^m × a^n = a^{m+n}, the quotient rule a^m ÷ a^n = a^{m−n} and the power rule (a^m)^n = a^{m·n}.",
+        questions: [
+          { q: "What is 2 raised to the 6th power?", options: ["64", "48", "32", "16"], answer: 0 },
+          { q: "Simplify 10^3 × 10^2.", options: ["10^5", "10^6", "10^1", "10^3"], answer: 0 },
+          { q: "What is (4^3)/(4^1)?", options: ["4^2", "4^4", "4", "4^0"], answer: 0 },
+          { q: "Simplify (3^2)^3.", options: ["3^5", "3^6", "3^3", "3^8"], answer: 1 },
+          { q: "Evaluate 5^{−1}.", options: ["0.2", "-5", "1/25", "5"], answer: 0 },
+          { q: "Which of these equals 7^0?", options: ["1", "7", "0", "7^0"], answer: 0 },
+          { q: "Simplify 2^3 × 3^3.", options: ["6^3", "2^6", "3^6", "6^6"], answer: 0 },
+          { q: "Evaluate (2^4)/8.", options: ["2", "4", "8", "16"], answer: 0 },
+          { q: "Simplify 9^2 ÷ 9^1.", options: ["9", "81", "1", "729"], answer: 0 },
+          { q: "Which is larger: 2^5 or 3^4?", options: ["3^4", "2^5", "They are equal", "Cannot determine"], answer: 0 }
+        ]
+      },
+      {
+        title: "Scientific Notation",
+        summary: "Scientific notation expresses very large or very small numbers using powers of ten. A number is written as a × 10^n where 1 ≤ |a| < 10 and n is an integer.",
+        questions: [
+          { q: "Convert 0.0032 to scientific notation.", options: ["3.2 × 10^−3", "3.2 × 10^−2", "0.32 × 10^−3", "32 × 10^−4"], answer: 0 },
+          { q: "Write 7.89 × 10^5 in standard form.", options: ["789000", "78900", "7,890,000", "78,900"], answer: 0 },
+          { q: "Multiply (2 × 10^3) × (3 × 10^4).", options: ["6 × 10^7", "5 × 10^7", "6 × 10^8", "6 × 10^6"], answer: 0 },
+          { q: "Which is correct: 4.5 × 10^−2 equals?", options: ["0.045", "0.45", "0.0045", "45"], answer: 0 },
+          { q: "Express 6,700,000 in scientific notation.", options: ["6.7 × 10^6", "6.7 × 10^5", "67 × 10^5", "0.67 × 10^7"], answer: 0 },
+          { q: "9.1 × 10^−3 equals?", options: ["0.0091", "0.091", "91", "9.1"], answer: 0 },
+          { q: "Divide (8 × 10^6) by (2 × 10^2).", options: ["4 × 10^4", "4 × 10^8", "16 × 10^3", "6 × 10^4"], answer: 0 },
+          { q: "1.2 × 10^0 equals?", options: ["1.2", "12", "0.12", "120"], answer: 0 },
+          { q: "Which is larger: 5 × 10^4 or 4 × 10^5?", options: ["4 × 10^5", "5 × 10^4", "They are equal", "Cannot determine"], answer: 0 },
+          { q: "Convert 2.5 × 10^−1 to standard form.", options: ["0.25", "0.025", "2.5", "25"], answer: 0 }
+        ]
+      },
+      {
+        title: "Greatest Common Factor & Least Common Multiple",
+        summary: "The greatest common factor (GCF) of two numbers is the largest number that divides both numbers without remainder. The least common multiple (LCM) is the smallest positive integer that is a multiple of both numbers. Prime factorization helps compute GCF and LCM.",
+        questions: [
+          { q: "Find the GCF of 16 and 24.", options: ["8", "12", "4", "2"], answer: 0 },
+          { q: "Find the LCM of 6 and 15.", options: ["30", "45", "60", "90"], answer: 0 },
+          { q: "The GCF of 14 and 49 is ____.", options: ["7", "14", "21", "49"], answer: 0 },
+          { q: "The LCM of 8 and 12 is ____.", options: ["36", "24", "16", "40"], answer: 1 },
+          { q: "Find the GCF of 18 and 30.", options: ["3", "9", "6", "12"], answer: 2 },
+          { q: "Find the LCM of 3, 4 and 6.", options: ["12", "24", "18", "36"], answer: 0 },
+          { q: "What is the GCF of 27 and 45?", options: ["9", "6", "3", "12"], answer: 0 },
+          { q: "Find the LCM of 5 and 8.", options: ["20", "40", "15", "80"], answer: 1 },
+          { q: "The GCF of 21 and 35 is ____.", options: ["3", "7", "21", "35"], answer: 1 },
+          { q: "The LCM of 9 and 12 is ____.", options: ["36", "54", "48", "108"], answer: 0 }
+        ]
+      },
+      {
+        title: "Prime Factorization",
+        summary: "Prime factorization expresses a composite number as a product of prime numbers. This representation is unique (apart from the order of factors).",
+        questions: [
+          { q: "Prime factorization of 60 is ____.", options: ["2^2 × 3 × 5", "2 × 3 × 10", "2^3 × 5", "3 × 5^2"], answer: 0 },
+          { q: "Prime factorization of 100 is ____.", options: ["2^2 × 5^2", "2^3 × 5", "10 × 10", "2 × 5^2"], answer: 0 },
+          { q: "Which is the prime factorization of 84?", options: ["2^2 × 3 × 7", "2 × 3^2 × 7", "2 × 2 × 2 × 7", "4 × 3 × 7"], answer: 0 },
+          { q: "The prime factors of 56 are ____.", options: ["2^2 × 7", "2^3 × 7", "2 × 7", "2^4 × 7"], answer: 1 },
+          { q: "Which number is composite?", options: ["29", "37", "39", "43"], answer: 2 },
+          { q: "Prime factorization of 45 is ____.", options: ["3^2 × 5", "3 × 3 × 3", "5 × 9", "3 × 15"], answer: 0 },
+          { q: "Prime factorization of 72 is ____.", options: ["2^3 × 3^2", "2^2 × 3^3", "2 × 6^2", "2^4 × 3"], answer: 0 },
+          { q: "Which number is prime?", options: ["21", "19", "27", "39"], answer: 1 },
+          { q: "Prime factorization of 108 is ____.", options: ["2^2 × 3^3", "2^3 × 3^2", "2^4 × 3", "3^4"], answer: 0 },
+          { q: "Prime factorization of 96 is ____.", options: ["2^4 × 6", "2^5 × 3", "2^3 × 3", "2^2 × 12"], answer: 1 }
+        ]
+      },
+      {
+        title: "Congruent Right Triangles",
+        summary: "Two right triangles are congruent if their corresponding sides and angles are congruent. In right triangles, if the legs match (or one leg and the hypotenuse match), the triangles are congruent.",
+        img: "geometry_images/congruent_right_triangles.png",
+        questions: [
+          { q: "Two right triangles have legs of lengths 3 cm and 4 cm. Are they congruent?", options: ["Yes", "No", "Only if the hypotenuse is equal", "They are similar but not congruent"], answer: 0 },
+          { q: "Two right triangles each have hypotenuse 10 cm and one leg 6 cm. Are they congruent?", options: ["Yes", "No", "Only if the other leg is equal", "Not enough information"], answer: 0 },
+          { q: "Which criterion proves two right triangles are congruent?", options: ["Two right angles", "Hypotenuse and a leg", "Two acute angles", "Perimeter"], answer: 1 },
+          { q: "Right triangles with sides (6,8,10) and (8,6,10) are ____.", options: ["Congruent", "Similar but not congruent", "Not related", "Isosceles"], answer: 0 },
+          { q: "Which triangle is congruent to a 5-12-13 triangle?", options: ["12-13-5", "5-13-12", "13-5-12", "All of the above"], answer: 3 },
+          { q: "The hypotenuse–leg theorem states that if the hypotenuse and one leg of a right triangle are equal to those of another, the triangles are ____.", options: ["Congruent", "Similar", "Obtuse", "Isosceles"], answer: 0 },
+          { q: "Right triangles with legs 7 and 24 and hypotenuse 25 are congruent to right triangles with legs 24 and 7 and hypotenuse 25.", options: ["Yes", "No", "Only if orientation matches", "Only if area matches"], answer: 0 },
+          { q: "Which information is needed to apply the hypotenuse–leg theorem?", options: ["Hypotenuse and one leg", "Two legs", "Hypotenuse and an acute angle", "Two angles"], answer: 0 },
+          { q: "If two right triangles have equal hypotenuse and one equal acute angle, then the triangles are ____.", options: ["Congruent", "Not congruent"], answer: 0 },
+          { q: "The symbol '≅' means ____.", options: ["Congruent", "Approximately equal", "Parallel", "Perpendicular"], answer: 0 }
+        ]
+      },
+      {
+        title: "Square Roots",
+        summary: "The square root of a number x is a number y such that y^2 = x. Perfect squares have integer roots (e.g., √49 = 7). Non‑perfect squares have irrational roots (like √2). The principal square root is the positive root.",
+        questions: [
+          { q: "√64 equals ____.", options: ["8", "6", "32", "16"], answer: 0 },
+          { q: "√25 is ____.", options: ["5", "-5", "±5", "25"], answer: 0 },
+          { q: "Which of these numbers has an irrational square root?", options: ["10", "9", "16", "25"], answer: 0 },
+          { q: "Simplify √(49/4).", options: ["7/2", "3.5", "7/4", "14"], answer: 0 },
+          { q: "√2 is ____.", options: ["Irrational", "Rational", "Integer", "Negative"], answer: 0 },
+          { q: "Simplify √(81x^2) for x>0.", options: ["9x", "9|x|", "81x", "9√x"], answer: 0 },
+          { q: "√0 equals ____.", options: ["0", "1", "Undefined", "-1"], answer: 0 },
+          { q: "Which is equal to (√3)^2?", options: ["3", "√9", "9", "6"], answer: 0 },
+          { q: "Simplify √9 + √16.", options: ["7", "5", "4", "6"], answer: 0 },
+          { q: "(√5)(√20) equals ____.", options: ["10", "4", "5", "20"], answer: 0 }
+        ]
+      },
+      {
+        title: "Factorization of Polynomials",
+        summary: "Factoring a polynomial means writing it as a product of simpler polynomials. Techniques include factoring out the greatest common factor, difference of squares and transforming quadratics into products of binomials.",
+        questions: [
+          { q: "Factor x^2 − 16.", options: ["(x−4)(x+4)", "(x−8)(x+2)", "(x−4)(x+2)", "(x−8)(x+8)"], answer: 0 },
+          { q: "Factor 2x + 6.", options: ["2(x+3)", "x(2+3)", "2(x−3)", "(x+3)/2"], answer: 0 },
+          { q: "Factor x^2 + 4x + 3.", options: ["(x+1)(x+3)", "(x+3)(x+2)", "(x+1)(x−3)", "(x+3)(x−1)"], answer: 0 },
+          { q: "Factor 4x^2 − 9.", options: ["(2x−3)(2x+3)", "(4x−3)(x+3)", "(2x−9)(2x+1)", "(x−3)(4x+3)"], answer: 0 },
+          { q: "Factor x^2 − 5x + 6.", options: ["(x−2)(x−3)", "(x+2)(x+3)", "(x−1)(x−6)", "(x−3)(x+2)"], answer: 0 },
+          { q: "Factor 3x^2 − 3.", options: ["3(x+1)(x−1)", "3(x^2−1)", "x(3x−3)", "3(x−1)^2"], answer: 0 },
+          { q: "Factor x^2 + 2x.", options: ["x(x+2)", "(x+2)(x+2)", "x^2+2", "2(x^2+x)"], answer: 0 },
+          { q: "Factor x^2 − 25.", options: ["(x−5)(x+5)", "(x−10)(x+2.5)", "(x−25)(x+1)", "(x−5)(x−5)"], answer: 0 },
+          { q: "Factor 2x^2 + 5x + 3.", options: ["(2x+3)(x+1)", "(2x+1)(x+3)", "(x+1)(x+3)", "(2x+3)(x+3)"], answer: 0 },
+          { q: "Factor 4x^2 + 4x + 1.", options: ["(2x+1)^2", "(2x+1)(2x−1)", "(4x+1)(x+1)", "(x+2)(4x+0.5)"], answer: 0 }
+        ]
+      },
+      {
+        title: "Solving Quadratic Equations by Factoring",
+        summary: "A quadratic equation ax^2 + bx + c = 0 can sometimes be solved by factoring it into two binomials. Using the zero‑product property, each factor is set to zero to find the solutions.",
+        questions: [
+          { q: "Solve x^2 − 9 = 0.", options: ["x = ±3", "x = 3", "x = -3", "x = 9"], answer: 0 },
+          { q: "Solve x^2 − 4x + 4 = 0.", options: ["x = 2", "x = 4", "x = -2", "x = 1"], answer: 0 },
+          { q: "Solve x^2 + 6x + 8 = 0.", options: ["x = -2, -4", "x = 2, 4", "x = 4, -2", "x = 2, -4"], answer: 0 },
+          { q: "Solve 2x^2 − 3x − 2 = 0.", options: ["x = 2, -1/2", "x = 1/2, -2", "x = -2, 1/2", "x = 2, 1/2"], answer: 0 },
+          { q: "Solve x^2 + x − 6 = 0.", options: ["x = -3, 2", "x = 3, -2", "x = 3, 6", "x = 2, -6"], answer: 0 },
+          { q: "Solve x^2 − 5x + 6 = 0.", options: ["x = 2, 3", "x = 3, 6", "x = 6, 2", "x = 1, 6"], answer: 0 },
+          { q: "Solve 3x^2 + x − 2 = 0.", options: ["x = 2/3, -1", "x = -2/3, 1", "x = 1, -2/3", "x = -1, 2/3"], answer: 0 },
+          { q: "Solve x^2 − 1 = 0.", options: ["x = ±1", "x = 1", "x = -1", "x = 0"], answer: 0 },
+          { q: "Solve x(x − 7) = 0.", options: ["x = 0, 7", "x = -7, 0", "x = 7, 0", "x = 0, -7"], answer: 0 },
+          { q: "Solve (x + 5)(x − 3) = 0.", options: ["x = -5, 3", "x = 5, -3", "x = 3, -5", "x = -3, 5"], answer: 0 }
+        ]
+      },
+      {
+        title: "Pythagorean Theorem",
+        summary: "In a right triangle, the square of the hypotenuse equals the sum of the squares of the legs: a^2 + b^2 = c^2. This theorem allows you to compute unknown side lengths and to verify if a triangle is right‑angled.",
+        img: "geometry_images/pythagorean_triangle.png",
+        questions: [
+          { q: "In a right triangle with legs 9 and 12, find the hypotenuse.", options: ["15", "21", "12", "18"], answer: 0 },
+          { q: "Determine if a triangle with sides 8, 15, 17 is right‑angled.", options: ["Yes", "No"], answer: 0 },
+          { q: "Find the missing leg if the hypotenuse is 10 and one leg is 6.", options: ["8", "4", "5", "6"], answer: 0 },
+          { q: "For a triangle with sides 7, 24, 25, which is the hypotenuse?", options: ["24", "25", "7", "32"], answer: 1 },
+          { q: "A ladder 13 m long leans against a wall; its foot is 5 m from the wall. How high is the top?", options: ["12 m", "5 m", "13 m", "8 m"], answer: 0 },
+          { q: "A triangle with sides 6, 8 and 10 is:", options: ["Right", "Acute", "Obtuse", "Cannot say"], answer: 0 },
+          { q: "In right triangle ABC with legs a=5 and c=13 (hypotenuse), find b.", options: ["12", "8", "10", "6"], answer: 0 },
+          { q: "Does a triangle with sides 2, 3, 4 satisfy the Pythagorean theorem?", options: ["No", "Yes"], answer: 0 },
+          { q: "For a triangle to be right, the largest side must be the ____.", options: ["Hypotenuse", "Median", "Height", "Angle"], answer: 0 },
+          { q: "If a right triangle has perimeter 30 and legs 5 and 12, what is the length of the hypotenuse?", options: ["13", "11", "10", "17"], answer: 0 }
+        ]
+      },
+      {
+        title: "Trapezoid Midsegment Theorem",
+        summary: "In a trapezoid, the segment connecting the midpoints of the legs (midsegment) is parallel to the bases and its length equals the average of the lengths of the two bases.",
+        img: "geometry_images/trapezoid_midsegment.png",
+        questions: [
+          { q: "In a trapezoid with bases 6 and 10, the midsegment length is ____.", options: ["8", "16", "6", "10"], answer: 0 },
+          { q: "The midsegment of a trapezoid is parallel to the ____.", options: ["bases", "legs", "diagonals", "none"], answer: 0 },
+          { q: "If the midsegment is 9 cm and one base is 7 cm, the other base is ____.", options: ["11", "16", "20", "9"], answer: 0 },
+          { q: "The midsegment length equals half the sum of the ____.", options: ["lengths of the bases", "legs", "diagonals", "angles"], answer: 0 },
+          { q: "If a trapezoid has equal bases, it is a ____.", options: ["parallelogram", "rectangle", "rhombus", "square"], answer: 0 },
+          { q: "A trapezoid has bases 8 cm and 14 cm. What is the midsegment?", options: ["11 cm", "12 cm", "13 cm", "10 cm"], answer: 0 },
+          { q: "If the midsegment is 5 and one base is 3, the other base is ____.", options: ["7", "8", "10", "5"], answer: 0 },
+          { q: "The distance between two parallel sides in a trapezoid is called the ____.", options: ["height", "midsegment", "base", "diagonal"], answer: 0 },
+          { q: "In an isosceles trapezoid with bases 10 and 6, the midsegment is ____.", options: ["8", "16", "4", "6"], answer: 0 },
+          { q: "For trapezoid ABCD with bases AB=12 and CD=20, the midsegment is ____.", options: ["16", "8", "32", "20"], answer: 0 }
+        ]
+      },
+      {
+        title: "Fractional Expressions",
+        summary: "Fractional expressions involve numerators and denominators that may contain variables. Simplifying them often requires factoring, reducing common factors or adding and subtracting fractions.",
+        questions: [
+          { q: "Simplify (4x)/8.", options: ["x/2", "x/4", "2x", "4/x"], answer: 0 },
+          { q: "Simplify (x^2 − 4)/(x − 2), x ≠ 2.", options: ["x + 2", "x − 2", "x^2 − 2", "2/(x − 2)"], answer: 0 },
+          { q: "Add 1/2 + 1/3.", options: ["5/6", "1/5", "2/3", "3/4"], answer: 0 },
+          { q: "Subtract 3/4 − 1/6.", options: ["7/12", "5/12", "1/2", "3/10"], answer: 0 },
+          { q: "Simplify 3/9.", options: ["1/3", "3", "1/9", "9/3"], answer: 0 },
+          { q: "Simplify (6x + 9)/3.", options: ["2x + 3", "6x/3 + 9", "6x + 3", "2x + 9"], answer: 0 },
+          { q: "Simplify (x^2 − 1)/(x − 1), x ≠ 1.", options: ["x + 1", "x^2 + 1", "x − 1", "1"], answer: 0 },
+          { q: "Add 2/5 + 3/10.", options: ["7/10", "1/2", "5/15", "10/5"], answer: 0 },
+          { q: "Simplify (15y)/5.", options: ["3y", "5y/3", "y", "15/5"], answer: 0 },
+          { q: "Simplify (x^2 − 9)/(x + 3), x ≠ -3.", options: ["x − 3", "x + 3", "x^2 + 3", "9/(x + 3)"], answer: 0 }
+        ]
+      },
+      {
+        title: "Compound Fractions",
+        summary: "Compound fractions are fractions in which the numerator, denominator or both are themselves fractions. To simplify, multiply by the reciprocal of the divisor.",
+        questions: [
+          { q: "Simplify (1/2)/(1/3).", options: ["3/2", "2/3", "1/6", "3"], answer: 0 },
+          { q: "Simplify (5/6)/(5/9).", options: ["3/2", "9/6", "6/5", "1/2"], answer: 0 },
+          { q: "Simplify (3/5)/(9/10).", options: ["2/3", "3/2", "1/3", "5/6"], answer: 0 },
+          { q: "Simplify 1/(3/4).", options: ["4/3", "3/4", "1/4", "4"], answer: 0 },
+          { q: "Simplify (2/7)/(1/14).", options: ["4", "7/2", "1/4", "1/7"], answer: 0 },
+          { q: "Simplify (5/9)/(5/6).", options: ["2/3", "5/3", "3/2", "1/2"], answer: 0 },
+          { q: "Simplify (8/3)/(2/9).", options: ["12", "1/12", "4/3", "3/4"], answer: 0 },
+          { q: "Simplify (x/4)/(x/2), x ≠ 0.", options: ["1/2", "2", "x/8", "4/x"], answer: 0 },
+          { q: "Simplify (3/8)/(9/16).", options: ["2/3", "3/2", "1/3", "1/2"], answer: 0 },
+          { q: "Simplify (7/3)/(7/9).", options: ["3", "1/3", "2", "9"], answer: 0 }
+        ]
+      },
+      {
+        title: "Proportionality and Ratios",
+        summary: "Two quantities are proportional if they have a constant ratio. In a proportion a/b = c/d, the cross products are equal (ad = bc). Proportional reasoning is used in scaling and similarity problems.",
+        questions: [
+          { q: "Solve: 4/5 = x/10. What is x?", options: ["8", "2", "10", "4"], answer: 0 },
+          { q: "If the ratio of cats to dogs is 3:2 and there are 12 cats, how many dogs are there?", options: ["8", "6", "10", "18"], answer: 0 },
+          { q: "Complete the proportion: 6/9 = 2/?.", options: ["3", "4", "6", "9"], answer: 0 },
+          { q: "If 5 pencils cost $3, how much do 10 pencils cost?", options: ["$6", "$5", "$8", "$10"], answer: 0 },
+          { q: "Solve: 7/x = 21/9.", options: ["3", "9", "21", "1/3"], answer: 0 },
+          { q: "Simplify the ratio 15:20.", options: ["3:4", "4:3", "3:5", "1:4"], answer: 0 },
+          { q: "If a and b are proportional and a = 6 when b = 9, what is b when a = 10?", options: ["15", "12", "10", "20"], answer: 0 },
+          { q: "8 is to 4 as 10 is to __.", options: ["5", "2", "8", "4"], answer: 0 },
+          { q: "The ratio 25:5 is equal to 5:__.", options: ["1", "5", "2", "25"], answer: 0 },
+          { q: "Solve x/12 = 6/9.", options: ["8", "6", "4", "9"], answer: 0 }
+        ]
+      },
+      {
+        title: "Parallelograms and Rectangles",
+        summary: "A parallelogram is a quadrilateral with both pairs of opposite sides parallel and equal. A rectangle is a parallelogram with right angles. In a parallelogram, opposite sides are congruent and diagonals bisect each other.",
+        questions: [
+          { q: "Consecutive angles in a parallelogram are ____.", options: ["supplementary", "complementary", "equal", "90°"], answer: 0 },
+          { q: "The diagonals of a rectangle are ____.", options: ["equal", "perpendicular", "unequal", "parallel"], answer: 0 },
+          { q: "Opposite sides of a parallelogram are ____.", options: ["equal and parallel", "unequal", "perpendicular", "only one pair equal"], answer: 0 },
+          { q: "A rectangle is a parallelogram with ____.", options: ["right angles", "equal sides", "obtuse angles", "no diagonals"], answer: 0 },
+          { q: "The area of a rectangle with length 5 and width 3 is ____.", options: ["15", "8", "6", "12"], answer: 0 },
+          { q: "The perimeter of a parallelogram with sides 4 and 7 is ____.", options: ["22", "28", "11", "14"], answer: 0 },
+          { q: "Diagonals of a parallelogram ____ each other.", options: ["bisect", "are perpendicular", "are equal", "are horizontal"], answer: 0 },
+          { q: "If one angle of a parallelogram is 70°, the adjacent angle is ____.", options: ["110°", "70°", "100°", "180°"], answer: 0 },
+          { q: "A square is a rectangle and also a ____.", options: ["rhombus", "trapezoid", "triangle", "pentagon"], answer: 0 },
+          { q: "In rectangle ABCD, diagonals AC and BD intersect at O. AO is ____ BD.", options: ["equal to", "twice", "half", "not related"], answer: 0 }
+        ]
+      },
+      {
+        title: "Special Quadrilaterals",
+        summary: "Special quadrilaterals include squares, rhombuses, rectangles, kites and trapezoids. A square has all sides equal and all angles 90°. A rhombus has all sides equal but angles may not be right angles.",
+        questions: [
+          { q: "A rhombus has all sides ____.", options: ["equal", "perpendicular", "parallel", "unequal"], answer: 0 },
+          { q: "A trapezoid has ____ pairs of parallel sides.", options: ["one", "two", "three", "four"], answer: 0 },
+          { q: "A square is a rectangle with all sides ____.", options: ["equal", "parallel", "different lengths", "90°"], answer: 0 },
+          { q: "A kite has ____ pairs of adjacent sides equal.", options: ["two", "one", "three", "four"], answer: 0 },
+          { q: "Which quadrilateral has exactly one pair of parallel sides?", options: ["trapezoid", "parallelogram", "rectangle", "rhombus"], answer: 0 },
+          { q: "A rectangle is a ____ parallelogram.", options: ["right‑angled", "equilateral", "acute", "obtuse"], answer: 0 },
+          { q: "A square is both a rhombus and a ____.", options: ["rectangle", "trapezoid", "kite", "pentagon"], answer: 0 },
+          { q: "The diagonals of a rhombus are ____.", options: ["perpendicular", "equal", "parallel", "bisectors"], answer: 0 },
+          { q: "Which quadrilateral has two pairs of opposite parallel sides and all sides equal?", options: ["rhombus", "rectangle", "kite", "trapezoid"], answer: 0 },
+          { q: "A trapezoid with equal legs is called an ____ trapezoid.", options: ["isosceles", "right", "scalene", "equilateral"], answer: 0 }
+        ]
+      },
+      {
+        title: "Algebraic Expressions",
+        summary: "Algebraic expressions combine variables, numbers and operation symbols. Simplifying expressions involves combining like terms and using the distributive property.",
+        questions: [
+          { q: "Simplify 2x + 5x.", options: ["7x", "10x", "3x", "2x^5"], answer: 0 },
+          { q: "Simplify 3(a − 2b).", options: ["3a − 6b", "3a − 2b", "a − 6b", "6a − b"], answer: 0 },
+          { q: "Evaluate 5p − 3q when p=2 and q=4.", options: ["-2", "4", "2", "-4"], answer: 0 },
+          { q: "Expand (x + 3)(x + 2).", options: ["x^2 + 5x + 6", "x^2 + 5x + 5", "x^2 + 6x + 5", "x^2 + 6x + 6"], answer: 0 },
+          { q: "Simplify 4m − 2m + 7.", options: ["2m + 7", "4m + 7", "6m + 7", "m + 7"], answer: 0 },
+          { q: "Evaluate 3x^2 when x = 2.", options: ["12", "6", "4", "9"], answer: 0 },
+          { q: "Simplify 2(x − 4) + 3(x + 1).", options: ["5x − 5", "5x − 11", "5x + 5", "5x − 1"], answer: 0 },
+          { q: "Simplify x^2y + xy^2 when x=1 and y=2.", options: ["6", "4", "2", "8"], answer: 0 },
+          { q: "Simplify (x + 5) − (x + 2).", options: ["3", "7", "-3", "x + 3"], answer: 0 },
+          { q: "Expand (2x)(x^2).", options: ["2x^3", "2x^2", "x^3", "2x"], answer: 0 }
+        ]
+      },
+      {
+        title: "Linear Equations in One Variable",
+        summary: "A linear equation in one variable has the form ax + b = 0. Solving it involves isolating the variable using inverse operations on both sides.",
+        questions: [
+          { q: "Solve x + 7 = 12.", options: ["5", "7", "12", "19"], answer: 0 },
+          { q: "Solve 3y − 4 = 8.", options: ["4", "2", "-4", "12"], answer: 0 },
+          { q: "Solve 5z + 10 = 0.", options: ["-2", "2", "-10", "5"], answer: 0 },
+          { q: "Solve 2x/3 = 6.", options: ["9", "3", "12", "6"], answer: 0 },
+          { q: "Solve 4a − 6 = 2a.", options: ["3", "-3", "6", "4"], answer: 0 },
+          { q: "Solve 7b + 2 = 16.", options: ["2", "7", "14", "-2"], answer: 0 },
+          { q: "Solve 8c − 5 = 3c + 10.", options: ["3", "5", "-3", "15"], answer: 0 },
+          { q: "Solve (x/4) + 5 = 8.", options: ["12", "3", "8", "13"], answer: 0 },
+          { q: "Solve 9m − 3 = 6m + 15.", options: ["6", "18", "0", "-6"], answer: 0 },
+          { q: "Solve 2n + 3 = 5n − 9.", options: ["4", "-4", "12", "6"], answer: 0 }
+        ]
+      },
+      {
+        title: "Coordinate Geometry",
+        summary: "Coordinate geometry uses ordered pairs to describe points on a plane. The slope of a line measures its steepness and can be found using two points. The equation of a line in slope‑intercept form is y = mx + c.",
+        questions: [
+          { q: "The distance between (0,0) and (3,4) is ____.", options: ["5", "7", "6", "4"], answer: 0 },
+          { q: "The midpoint of (2,4) and (4,8) is ____.", options: ["(3,6)", "(6,3)", "(2,8)", "(4,4)"], answer: 0 },
+          { q: "Slope of the line through (1,2) and (5,4) is ____.", options: ["1/2", "2", "1", "-1/2"], answer: 0 },
+          { q: "Which point lies on the y‑axis?", options: ["(0,5)", "(5,0)", "(1,1)", "(0,0)"], answer: 0 },
+          { q: "What is the x‑coordinate of the point (7,-3)?", options: ["7", "-3", "10", "4"], answer: 0 },
+          { q: "The slope of a horizontal line is ____.", options: ["0", "undefined", "1", "infinite"], answer: 0 },
+          { q: "The slope of a vertical line is ____.", options: ["undefined", "0", "1", "-1"], answer: 0 },
+          { q: "The y‑intercept of y=4x−2 is ____.", options: ["-2", "4", "2", "0"], answer: 0 },
+          { q: "The point (0,0) is called the ____.", options: ["origin", "axis", "intercept", "slope"], answer: 0 },
+          { q: "The equation of a line with slope 3 and y‑intercept 1 is ____.", options: ["y = 3x + 1", "y = 1x + 3", "y = 1x − 3", "y = 3x − 1"], answer: 0 }
+        ]
+      },
+      {
+        title: "Volume and Surface Area",
+        summary: "Volume measures the space a 3‑D figure occupies. Surface area is the total area of all its faces.",
+        questions: [
+          { q: "Volume of a cube with side 4.", options: ["64", "16", "12", "8"], answer: 0 },
+          { q: "Surface area of a cube with edge 3.", options: ["54", "27", "18", "36"], answer: 0 },
+          { q: "Volume of a cylinder is ____.", options: ["πr^2h", "2πrh", "πr^3", "πr^2 + h"], answer: 0 },
+          { q: "Volume of a rectangular prism 2×3×4.", options: ["24", "20", "18", "12"], answer: 0 },
+          { q: "Surface area of a 1×2×3 prism is ____.", options: ["22", "36", "12", "18"], answer: 0 },
+          { q: "Volume of a cone is ____.", options: ["(1/3)πr^2h", "πr^2h", "(4/3)πr^3", "2πrh"], answer: 0 },
+          { q: "Volume of a sphere of radius 2 is ____.", options: ["(32/3)π", "32π", "(4/3)π", "8π"], answer: 0 },
+          { q: "Surface area of a sphere of radius r is ____.", options: ["4πr^2", "2πr^2", "πr^2", "3πr^2"], answer: 0 },
+          { q: "Volume of a cube edge 10 cm is ____.", options: ["1000", "100", "10", "10000"], answer: 0 },
+          { q: "Surface area of a cube side 5 is ____.", options: ["150", "25", "75", "125"], answer: 0 }
+        ]
+      },
+      {
+        title: "Statistics: Mean, Median, Mode",
+        summary: "The mean is the average of a data set, found by dividing the sum of the values by the number of values. The median is the middle value when the data are ordered. The mode is the most frequently occurring value.",
+        questions: [
+          { q: "For data {2,4,4,8}, the mode is ____.", options: ["4", "2", "8", "None"], answer: 0 },
+          { q: "For data {1,3,5,7,9}, the mean is ____.", options: ["5", "9", "7", "1"], answer: 0 },
+          { q: "For data {9,8,7,6}, the median is ____.", options: ["7.5", "7", "8", "8.5"], answer: 0 },
+          { q: "Which measure is the most frequent value?", options: ["Mode", "Mean", "Median", "Range"], answer: 0 },
+          { q: "Find the range of {3,10,6,7}.", options: ["7", "6", "9", "3"], answer: 0 },
+          { q: "The median of {5,8,12} is ____.", options: ["8", "5", "12", "10"], answer: 0 },
+          { q: "The mean of {4,4,4,4} is ____.", options: ["4", "0", "16", "1"], answer: 0 },
+          { q: "The mean of {2,4,6,8,10} is ____.", options: ["6", "5", "7", "4"], answer: 0 },
+          { q: "The mode of {1,2,2,3,3,3} is ____.", options: ["3", "2", "1", "0"], answer: 0 },
+          { q: "The median of {8,9,10,11,12,13} is ____.", options: ["10.5", "11", "10", "11.5"], answer: 0 }
+        ]
+      },
+      {
+        title: "Probability",
+        summary: "Probability quantifies how likely an event is to occur. For equally likely outcomes, P = (number of favorable outcomes)/(number of possible outcomes).",
+        questions: [
+          { q: "Probability of rolling an even number on a fair die is ____.", options: ["1/2", "1/3", "1/6", "2/3"], answer: 0 },
+          { q: "Probability of drawing an ace from a standard deck is ____.", options: ["1/13", "4/13", "1/4", "1/52"], answer: 0 },
+          { q: "Probability of flipping two heads when tossing two coins is ____.", options: ["1/4", "1/2", "1/8", "3/4"], answer: 0 },
+          { q: "Probability of getting a 3 on a die is ____.", options: ["1/6", "1/3", "1/5", "2/3"], answer: 0 },
+          { q: "Probability of drawing a red card from a deck is ____.", options: ["1/2", "1/4", "1/13", "1/26"], answer: 0 },
+          { q: "Probability of selecting a vowel from A,B,C,D,E is ____.", options: ["2/5", "3/5", "1/5", "4/5"], answer: 0 },
+          { q: "Probability of getting tails when flipping a coin is ____.", options: ["1/2", "1/4", "1/3", "2/3"], answer: 0 },
+          { q: "Probability of picking a number less than 3 from {1,2,3,4,5} is ____.", options: ["2/5", "3/5", "1/5", "4/5"], answer: 0 },
+          { q: "Probability of drawing a king or queen from a deck is ____.", options: ["2/13", "1/13", "8/13", "4/13"], answer: 0 },
+          { q: "Probability of rolling a number greater than 4 on a die is ____.", options: ["1/3", "1/2", "2/3", "1/6"], answer: 0 }
+        ]
+      },
+      {
+        title: "Functions",
+        summary: "A function assigns exactly one output for each input. Functions can be represented with tables, graphs or equations. The notation f(x) denotes the value of the function f at input x.",
+        questions: [
+          { q: "If f(x)=x^2, f(3)=?", options: ["9", "6", "3", "1"], answer: 0 },
+          { q: "Which set of ordered pairs is not a function?", options: ["{(1,2),(2,3),(1,3)}", "{(1,2),(2,2)}", "{(3,4),(5,6)}", "{(0,0),(1,1)}"], answer: 0 },
+          { q: "If g(x)=2x+1, g(0)=?", options: ["1", "2", "0", "-1"], answer: 0 },
+          { q: "The domain of f(x)=1/x is ____.", options: ["all real except 0", "all real numbers", "x>0", "x<0"], answer: 0 },
+          { q: "For h(x)=3x−4, solve h(x)=11.", options: ["5", "3", "11", "7"], answer: 0 },
+          { q: "If f(x)=x^2+1, f(-2)=?", options: ["5", "-5", "3", "4"], answer: 0 },
+          { q: "The graph of y=4 is a ____.", options: ["horizontal line", "vertical line", "diagonal line", "parabola"], answer: 0 },
+          { q: "Which of these is a function?", options: ["x^2+y^2=1", "y=2x+3", "x=3", "y^2=x"], answer: 1 },
+          { q: "The domain of f(x)=√x is ____.", options: ["x ≥ 0", "x>0", "all real", "x ≤ 0"], answer: 0 },
+          { q: "If p(x)=x−5, solve p(x)=0.", options: ["5", "-5", "0", "10"], answer: 0 }
+        ]
       }
+    ];
+
+    const chapterSelect = document.getElementById('chapterSelect');
+    const summaryDiv = document.getElementById('summary');
+    const startBtn = document.getElementById('startBtn');
+    const quizDiv = document.getElementById('quiz');
+    const questionContainer = document.getElementById('questionContainer');
+    const optionsDiv = document.getElementById('options');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultDiv = document.getElementById('result');
+
+    let currentChapter = null;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedAnswers = [];
+
+    // Populate chapter dropdown
+    chapters.forEach((chap, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = (index + 1) + '. ' + chap.title;
+      chapterSelect.appendChild(option);
+    });
+
+    chapterSelect.addEventListener('change', () => {
+      const idx = parseInt(chapterSelect.value);
+      currentChapter = chapters[idx];
+      // Populate summary and optional image
+      if (currentChapter.img) {
+        summaryDiv.innerHTML = '<p>' + currentChapter.summary + '</p>' +
+          '<img src="' + currentChapter.img + '" alt="' + currentChapter.title + ' diagram" style="max-width:100%;height:auto;margin-top:0.5rem;">';
+      } else {
+        summaryDiv.textContent = currentChapter.summary;
+      }
+      startBtn.classList.remove('hidden');
+      quizDiv.classList.add('hidden');
+      // Clear any previous results and hide the result container
+      resultDiv.innerHTML = '';
+      resultDiv.classList.add('hidden');
+    });
+
+    startBtn.addEventListener('click', () => {
+      if (!currentChapter) return;
+      // Copy questions and shuffle
+      currentQuestions = [...currentChapter.questions];
+      // Shuffle questions
+      for (let i = currentQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+      }
+      currentQuestionIndex = 0;
+      score = 0;
+      selectedAnswers = [];
+      quizDiv.classList.remove('hidden');
+      startBtn.classList.add('hidden');
+      // Hide previous results when starting a new quiz
+      resultDiv.classList.add('hidden');
+      displayQuestion();
+    });
+
+    function displayQuestion() {
+      const qObj = currentQuestions[currentQuestionIndex];
+      questionContainer.textContent = 'Question ' + (currentQuestionIndex + 1) + ': ' + qObj.q;
+      optionsDiv.innerHTML = '';
+      qObj.options.forEach((optionText, idx) => {
+        const label = document.createElement('label');
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'option';
+        radio.value = idx;
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(' ' + optionText));
+        optionsDiv.appendChild(label);
+      });
+      resultDiv.textContent = '';
     }
-    choicesEl.appendChild(btn);
-  });
 
-  if (answered && !gameOver) {
-    const nextWrap = root.querySelector('#next-wrap');
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'primary-btn';
-    const monsterDefeated = monsterHp <= 0;
-    if (monsterDefeated) {
-      nextBtn.textContent = current === questions.length - 1 ? 'Claim victory' : 'Next monster';
-    } else {
-      nextBtn.textContent = 'Continue battle';
-    }
-    nextBtn.onclick = goNext;
-    nextWrap.appendChild(nextBtn);
-  }
-}
-
-function selectChoice(choice) {
-  if (answered) return;
-  selected = choice;
-  answered = true;
-  const q = questions[current];
-
-  if (choice === q.answer) {
-    monsterHp = Math.max(monsterHp - DAMAGE_PER_HIT, 0);
-    shakeMonster = true;
-    if (monsterHp <= 0) {
-      log = "Critical hit! The " + q.monster + " is defeated.";
-    } else {
-      log = "Direct hit! The " + q.monster + " takes " + DAMAGE_PER_HIT + " damage.";
-    }
-  } else {
-    playerHp = Math.max(playerHp - MONSTER_COUNTERATTACK, 0);
-    shakePlayer = true;
-    log = "Missed. The correct answer was " + q.answer + ". The " + q.monster + " strikes back for " + MONSTER_COUNTERATTACK + ".";
-    if (playerHp <= 0) {
-      gameOver = true;
-      victory = false;
-    }
-  }
-  render();
-  setTimeout(() => { shakeMonster = false; shakePlayer = false; }, 150);
-}
-
-function goNext() {
-  const q = questions[current];
-  if (monsterHp <= 0) {
-    if (current === questions.length - 1) {
-      gameOver = true;
-      victory = true;
-      render();
-      return;
-    }
-    current++;
-    monsterHp = questions[current].monsterHp;
-    log = "A " + questions[current].monster + " blocks your path. Answer to attack.";
-  } else {
-    log = "The " + q.monster + " is still standing. Answer again to keep attacking.";
-  }
-  selected = null;
-  answered = false;
-  render();
-}
-
-function renderEnd() {
-  if (victory) {
-    root.innerHTML = `
-      <div class="end-screen">
-        <div class="end-icon win">&#127942;</div>
-        <p class="end-title">Victory!</p>
-        <p class="end-message">You defeated every monster, including the radical overlord, and finished with ${Math.max(playerHp,0)} HP remaining.</p>
-        <button class="primary-btn" id="retry" style="max-width:220px; margin:0 auto;">Battle again</button>
-      </div>
-    `;
-  } else {
-    root.innerHTML = `
-      <div class="end-screen">
-        <div class="end-icon lose">&#128128;</div>
-        <p class="end-title">Defeated</p>
-        <p class="end-message">You made it to level ${questions[current].level}, facing the ${questions[current].monster}. Sharpen up on radicals and try again.</p>
-        <button class="primary-btn" id="retry" style="max-width:220px; margin:0 auto;">Try again</button>
-      </div>
-    `;
-  }
-  root.querySelector('#retry').onclick = () => {
-    current = 0;
-    playerHp = PLAYER_MAX_HP;
-    monsterHp = questions[0].monsterHp;
-    selected = null;
-    answered = false;
-    gameOver = false;
-    victory = false;
-    log = "A " + questions[0].monster + " blocks your path. Answer to attack.";
-    render();
-  };
-}
-
-render();
-</script>
-
+    nextBtn.addEventListener('click', () => {
+      // Check selected answer
+      const selected = document.querySelector('input[name="option"]:checked');
+      if (!selected) {
+        alert('Please select an answer before proceeding.');
+        return;
+      }
+      const ans = parseInt(selected.value);
+      const correctAns = currentQuestions[currentQuestionIndex].answer;
+      // Record selected answer
+      selectedAnswers.push(ans);
+      if (ans === correctAns) {
+        score++;
+      }
+      currentQuestionIndex++;
+      if (currentQuestionIndex < currentQuestions.length) {
+        displayQuestion();
+      } else {
+        // Build result summary
+        quizDiv.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+        let summaryHtml = '<h3>Quiz Results</h3>';
+        summaryHtml += '<p>You scored ' + score + ' out of ' + currentQuestions.length + '.</p>';
+        currentQuestions.forEach((qObj, idx) => {
+          const userAns = selectedAnswers[idx];
+          const correct = qObj.answer;
+          const isCorrect = userAns === correct;
+          summaryHtml += '<div style="margin-bottom:0.5rem;">' +
+            '<strong>Q' + (idx + 1) + ':</strong> ' + qObj.q + '<br>' +
+            'Your answer: <span style="color:' + (isCorrect ? 'green' : 'red') + ';">' + (qObj.options[userAns] ?? 'No answer') + '</span><br>' +
+            'Correct answer: <span style="color:green;">' + qObj.options[correct] + '</span>' +
+          '</div>';
+        });
+        resultDiv.innerHTML = summaryHtml;
+        // Show the result container
+        resultDiv.classList.remove('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
