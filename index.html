@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radical battle - simplify and survive</title>
+<style>
+  :root {
+    --bg: #1a1b1e;
+    --panel: #24262b;
+    --panel-light: #2e3035;
+    --border: #3a3c42;
+    --text-primary: #f2f2f0;
+    --text-secondary: #a8a9ad;
+    --text-muted: #6e7077;
+    --accent: #5b8cff;
+    --accent-bg: rgba(91, 140, 255, 0.15);
+    --success: #4cc38a;
+    --success-bg: rgba(76, 195, 138, 0.15);
+    --danger: #e2574c;
+    --danger-bg: rgba(226, 87, 76, 0.15);
+    --warning: #e0a93e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .meta-row .level-label {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .battle-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .battle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .fighter {
+    flex: 1;
+  }
+
+  .fighter.right { text-align: right; }
+
+  .fighter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .fighter.right .fighter-label { justify-content: flex-end; }
+
+  .hp-bar-bg {
+    height: 14px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .hp-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .fighter.right .hp-bar-fill { margin-left: auto; }
+
+  .hp-label {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 4px 0 0;
+  }
+
+  .fighter.right .hp-label { text-align: right; }
+
+  .vs-icon {
+    font-size: 22px;
+    color: var(--text-muted);
+    transform: scale(1);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+
+  .vs-icon.shake { transform: scale(1.3); }
+
+  .log-box {
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    min-height: 20px;
+  }
+
+  .question-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .question-text {
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .choice-btn {
+    width: 100%;
+    padding: 16px 12px;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--panel-light);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, opacity 0.15s, transform 0.1s;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    background: var(--border);
+    border-color: var(--text-muted);
+  }
+
+  .choice-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .choice-btn:disabled { cursor: default; }
+
+  .choice-btn.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+    color: var(--success);
+  }
+
+  .choice-btn.wrong {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+
+  .choice-btn.faded { opacity: 0.4; }
+
+  .next-wrap { margin-top: 16px; }
+
+  .primary-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 14px;
+    border: 1.5px solid var(--accent);
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .primary-btn:hover { opacity: 0.92; }
+  .primary-btn:active { transform: scale(0.98); }
+
+  .end-screen {
+    text-align: center;
+    padding: 24px 16px;
+  }
+
+  .end-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 30px;
+  }
+
+  .end-icon.win { background: var(--success-bg); color: var(--success); }
+  .end-icon.lose { background: var(--danger-bg); color: var(--danger); }
+
+  .end-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .end-message {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Radical battle</h1>
+  <p class="subtitle">Simplify radicals correctly to defeat each monster</p>
+  <div id="app"></div>
+  <p class="footer-note">Answer right to attack. Answer wrong and the monster strikes back.</p>
+</div>
+
+<script>
+const questions = [
+  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a8 + \u221a18.", choices: ["5\u221a2", "10\u221a2", "\u221a26", "6\u221a2"], answer: "5\u221a2" },
+  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a12 + \u221a27.", choices: ["5\u221a3", "6\u221a3", "\u221a39", "3\u221a5"], answer: "5\u221a3" },
+  { level: 1, title: "Warm-up", monster: "Slime", monsterHp: 20, question: "Simplify \u221a20 + \u221a45.", choices: ["5\u221a5", "7\u221a5", "\u221a65", "10\u221a5"], answer: "5\u221a5" },
+  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify \u221a6 \u00d7 \u221a24.", choices: ["12", "6\u221a4", "\u221a30", "24\u221a6"], answer: "12" },
+  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify 2\u221a5 \u00d7 3\u221a20.", choices: ["60", "30\u221a5", "12\u221a25", "6\u221a100"], answer: "60" },
+  { level: 2, title: "Multiplying radicals", monster: "Goblin", monsterHp: 30, question: "Simplify 4\u221a3 \u00d7 2\u221a12.", choices: ["48", "24\u221a3", "8\u221a36", "16\u221a3"], answer: "48" },
+  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a18 + \u221a8 + \u221a50.", choices: ["10\u221a2", "8\u221a2", "12\u221a2", "\u221a76"], answer: "10\u221a2" },
+  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a27 + \u221a75 - \u221a12.", choices: ["6\u221a3", "8\u221a3", "4\u221a3", "\u221a90"], answer: "6\u221a3" },
+  { level: 3, title: "Add and multiply", monster: "Orc", monsterHp: 40, question: "Simplify \u221a80 + \u221a45 - \u221a20.", choices: ["5\u221a5", "6\u221a5", "10\u221a5", "\u221a105"], answer: "5\u221a5" },
+  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (\u221a2)(\u221a18) + \u221a8.", choices: ["6 + 2\u221a2", "8\u221a2", "6\u221a2", "10"], answer: "6 + 2\u221a2" },
+  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (2\u221a3)(\u221a12) + \u221a27.", choices: ["12 + 3\u221a3", "15\u221a3", "24", "9\u221a3"], answer: "12 + 3\u221a3" },
+  { level: 4, title: "Distribute and combine", monster: "Wraith", monsterHp: 50, question: "Simplify (\u221a3 + \u221a12)(\u221a3).", choices: ["9", "6\u221a3", "12", "3 + 2\u221a3"], answer: "9" },
+  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a2 + \u221a8)(\u221a18).", choices: ["18", "12\u221a2", "9\u221a2", "24"], answer: "18" },
+  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a5 + \u221a45)(\u221a20).", choices: ["40", "20\u221a5", "50", "30\u221a5"], answer: "40" },
+  { level: 5, title: "Bigger distributions", monster: "Golem", monsterHp: 60, question: "Simplify (\u221a6 + \u221a24)(\u221a6).", choices: ["18", "12", "24", "6\u221a30"], answer: "18" },
+  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a2 + \u221a3)\u00b2.", choices: ["5 + 2\u221a6", "5 + \u221a6", "6 + 2\u221a5", "2\u221a6"], answer: "5 + 2\u221a6" },
+  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a5 + \u221a20)\u00b2.", choices: ["45", "25", "30\u221a5", "5 + 2\u221a100"], answer: "45" },
+  { level: 6, title: "Squaring binomials", monster: "Dragon", monsterHp: 80, question: "Simplify (\u221a7 + \u221a28)(\u221a7).", choices: ["21", "14\u221a7", "28", "7 + \u221a196"], answer: "21" },
+  { level: 7, title: "Final boss", monster: "Radical overlord", monsterHp: 100, question: "Simplify (\u221a3 + \u221a12)(\u221a27 + \u221a75).", choices: ["72", "36\u221a3", "60", "24\u221a3"], answer: "72" }
+];
+
+const PLAYER_MAX_HP = 100;
+const DAMAGE_PER_HIT = 25;
+const MONSTER_COUNTERATTACK = 15;
+
+let current = 0;
+let playerHp = PLAYER_MAX_HP;
+let monsterHp = questions[0].monsterHp;
+let selected = null;
+let answered = false;
+let gameOver = false;
+let victory = false;
+let log = "A " + questions[0].monster + " blocks your path. Answer to attack.";
+let shakeMonster = false;
+let shakePlayer = false;
+
+const root = document.getElementById('app');
+
+function hpColor(pct) {
+  if (pct > 0.5) return 'var(--success)';
+  if (pct > 0.2) return 'var(--warning)';
+  return 'var(--danger)';
+}
+
+function render() {
+  if (gameOver) {
+    renderEnd();
+    return;
+  }
+  const q = questions[current];
+  const monsterPct = monsterHp / q.monsterHp;
+  const playerPct = playerHp / PLAYER_MAX_HP;
+
+  root.innerHTML = `
+    <div class="meta-row">
+      <span class="level-label">Level ${q.level} &middot; ${q.title}</span>
+      <span>Stage ${current + 1} of ${questions.length}</span>
+    </div>
+
+    <div class="battle-panel">
+      <div class="battle-row">
+        <div class="fighter">
+          <div class="fighter-label">You</div>
+          <div class="hp-bar-bg">
+            <div class="hp-bar-fill" style="width:${Math.max(playerPct*100,0)}%; background:${hpColor(playerPct)};"></div>
+          </div>
+          <p class="hp-label" style="color:${hpColor(playerPct)};">${Math.max(playerHp,0)} / ${PLAYER_MAX_HP} HP</p>
+        </div>
+        <div class="vs-icon${shakeMonster || shakePlayer ? ' shake' : ''}">&#9876;</div>
+        <div class="fighter right">
+          <div class="fighter-label">${q.monster}</div>
+          <div class="hp-bar-bg">
+            <div class="hp-bar-fill" style="width:${Math.max(monsterPct*100,0)}%; background:${hpColor(monsterPct)};"></div>
+          </div>
+          <p class="hp-label" style="color:${hpColor(monsterPct)};">${Math.max(monsterHp,0)} / ${q.monsterHp} HP</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-box">${log}</div>
+
+    <div class="question-panel">
+      <p class="question-text">${q.question}</p>
+    </div>
+
+    <div class="choices" id="choices"></div>
+    <div class="next-wrap" id="next-wrap"></div>
+  `;
+
+  const choicesEl = root.querySelector('#choices');
+  q.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice;
+    btn.onclick = () => selectChoice(choice);
+    if (answered) {
+      btn.disabled = true;
+      if (choice === q.answer) {
+        btn.classList.add('correct');
+      } else if (choice === selected) {
+        btn.classList.add('wrong');
+      } else {
+        btn.classList.add('faded');
+      }
+    }
+    choicesEl.appendChild(btn);
+  });
+
+  if (answered && !gameOver) {
+    const nextWrap = root.querySelector('#next-wrap');
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'primary-btn';
+    const monsterDefeated = monsterHp <= 0;
+    if (monsterDefeated) {
+      nextBtn.textContent = current === questions.length - 1 ? 'Claim victory' : 'Next monster';
+    } else {
+      nextBtn.textContent = 'Continue battle';
+    }
+    nextBtn.onclick = goNext;
+    nextWrap.appendChild(nextBtn);
+  }
+}
+
+function selectChoice(choice) {
+  if (answered) return;
+  selected = choice;
+  answered = true;
+  const q = questions[current];
+
+  if (choice === q.answer) {
+    monsterHp = Math.max(monsterHp - DAMAGE_PER_HIT, 0);
+    shakeMonster = true;
+    if (monsterHp <= 0) {
+      log = "Critical hit! The " + q.monster + " is defeated.";
+    } else {
+      log = "Direct hit! The " + q.monster + " takes " + DAMAGE_PER_HIT + " damage.";
+    }
+  } else {
+    playerHp = Math.max(playerHp - MONSTER_COUNTERATTACK, 0);
+    shakePlayer = true;
+    log = "Missed. The correct answer was " + q.answer + ". The " + q.monster + " strikes back for " + MONSTER_COUNTERATTACK + ".";
+    if (playerHp <= 0) {
+      gameOver = true;
+      victory = false;
+    }
+  }
+  render();
+  setTimeout(() => { shakeMonster = false; shakePlayer = false; }, 150);
+}
+
+function goNext() {
+  const q = questions[current];
+  if (monsterHp <= 0) {
+    if (current === questions.length - 1) {
+      gameOver = true;
+      victory = true;
+      render();
+      return;
+    }
+    current++;
+    monsterHp = questions[current].monsterHp;
+    log = "A " + questions[current].monster + " blocks your path. Answer to attack.";
+  } else {
+    log = "The " + q.monster + " is still standing. Answer again to keep attacking.";
+  }
+  selected = null;
+  answered = false;
+  render();
+}
+
+function renderEnd() {
+  if (victory) {
+    root.innerHTML = `
+      <div class="end-screen">
+        <div class="end-icon win">&#127942;</div>
+        <p class="end-title">Victory!</p>
+        <p class="end-message">You defeated every monster, including the radical overlord, and finished with ${Math.max(playerHp,0)} HP remaining.</p>
+        <button class="primary-btn" id="retry" style="max-width:220px; margin:0 auto;">Battle again</button>
+      </div>
+    `;
+  } else {
+    root.innerHTML = `
+      <div class="end-screen">
+        <div class="end-icon lose">&#128128;</div>
+        <p class="end-title">Defeated</p>
+        <p class="end-message">You made it to level ${questions[current].level}, facing the ${questions[current].monster}. Sharpen up on radicals and try again.</p>
+        <button class="primary-btn" id="retry" style="max-width:220px; margin:0 auto;">Try again</button>
+      </div>
+    `;
+  }
+  root.querySelector('#retry').onclick = () => {
+    current = 0;
+    playerHp = PLAYER_MAX_HP;
+    monsterHp = questions[0].monsterHp;
+    selected = null;
+    answered = false;
+    gameOver = false;
+    victory = false;
+    log = "A " + questions[0].monster + " blocks your path. Answer to attack.";
+    render();
+  };
+}
+
+render();
+</script>
+
+</body>
+</html>
