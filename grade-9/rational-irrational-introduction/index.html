@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rational and Irrational Numbers — Animated Introduction</title>
+  <style>
+    :root{--navy:#102a43;--navy2:#173f5f;--teal:#219384;--orange:#f28b2c;--gold:#f4c96b;--cream:#fff8ee;--pale:#eaf5f3;--white:#fff;--red:#d75353;--ink:#183b56}
+    *{box-sizing:border-box}body{margin:0;background:#071827;font-family:Arial,Helvetica,sans-serif;color:white;display:grid;place-items:center;min-height:100vh;padding:14px}
+    .player{width:min(1120px,100%);border-radius:24px;overflow:hidden;background:var(--navy);box-shadow:0 25px 70px rgba(0,0,0,.42)}
+    .stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:radial-gradient(circle at 70% 30%,#20577a 0,var(--navy) 48%,#091d2e 100%)}
+    .scene{position:absolute;inset:0;display:none;padding:7% 8%;isolation:isolate}.scene.active{display:flex;flex-direction:column;align-items:center;justify-content:center}.scene::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 55%,rgba(242,139,44,.09));z-index:-1}
+    h1,h2,p{margin:0;text-align:center}h1{font-size:clamp(34px,6vw,74px);line-height:1.05}h2{font-size:clamp(30px,5vw,62px);line-height:1.1}.subtitle{margin-top:22px;color:#cbdce7;font-size:clamp(18px,2.4vw,29px)}
+    .orange{color:var(--orange)}.teal{color:#54d5c2}.gold{color:var(--gold)}
+    .reveal{opacity:0;transform:translateY(28px)}.active .reveal{animation:reveal .85s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--delay,0s)}@keyframes reveal{to{opacity:1;transform:none}}
+    .question-mark{font-size:clamp(90px,17vw,210px);font-weight:900;color:var(--orange);position:absolute;right:8%;top:18%;opacity:.16;transform:rotate(8deg)}
+    .words{display:flex;gap:clamp(18px,5vw,70px);margin-top:50px;flex-wrap:wrap;justify-content:center}.word{padding:22px 34px;border:3px solid currentColor;border-radius:20px;font-size:clamp(25px,4vw,49px);font-weight:800;background:rgba(255,255,255,.05)}
+    .ratio{display:flex;flex-direction:column;align-items:center;margin:28px 0}.ratio .top,.ratio .bottom{font-size:clamp(54px,9vw,108px);font-weight:900}.ratio .bar{width:170px;height:8px;border-radius:8px;background:var(--orange)}
+    .definition{font-size:clamp(20px,3vw,36px);line-height:1.35;max-width:900px}.formula{margin-top:25px;padding:15px 28px;border-radius:16px;background:rgba(255,255,255,.1);font-size:clamp(22px,3.5vw,42px);font-weight:800}
+    .sort-stage{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:42px}.bucket{min-height:260px;border:3px solid;border-radius:24px;padding:24px;text-align:center;background:rgba(255,255,255,.06)}.bucket h3{font-size:clamp(22px,3vw,36px);margin:0}.bucket.r{border-color:#54d5c2}.bucket.i{border-color:var(--orange)}
+    .token{display:inline-block;background:var(--cream);color:var(--ink);border-radius:13px;padding:12px 18px;margin:12px 7px 0;font-size:clamp(20px,2.7vw,32px);font-weight:800;opacity:0}.active .token{animation:tokenDrop .65s cubic-bezier(.2,.9,.25,1.25) forwards;animation-delay:var(--delay)}@keyframes tokenDrop{from{opacity:0;transform:translateY(-80px) rotate(-7deg) scale(.65)}to{opacity:1;transform:none}}
+    .symbol-row{display:flex;align-items:center;justify-content:center;gap:35px;margin-top:38px}.symbol{font-size:clamp(65px,11vw,135px);font-weight:900;opacity:0}.active .symbol{animation:pop .7s cubic-bezier(.2,.9,.25,1.35) forwards;animation-delay:var(--delay)}@keyframes pop{from{opacity:0;transform:scale(.25) rotate(-15deg)}to{opacity:1;transform:none}}
+    .patterns{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:38px}.pattern{border-radius:20px;padding:25px 18px;min-height:230px;background:rgba(255,255,255,.08);border-top:7px solid}.pattern:nth-child(1){border-color:#54d5c2}.pattern:nth-child(2){border-color:var(--gold)}.pattern:nth-child(3){border-color:var(--orange)}.pattern h3{font-size:clamp(19px,2.5vw,30px);margin:0 0 20px}.digits{font-family:Consolas,monospace;font-size:clamp(18px,2.3vw,28px);white-space:nowrap;overflow:hidden;padding:14px;background:rgba(0,0,0,.2);border-radius:12px}.active .digits span{display:inline-block;animation:scroll 5s linear infinite;animation-delay:1s}@keyframes scroll{to{transform:translateX(-42%)}}.pattern p{margin-top:20px;font-size:clamp(16px,2vw,24px);font-weight:700}
+    .set-map{position:relative;width:min(850px,90%);height:390px;margin-top:30px;border:4px solid white;border-radius:25px;background:rgba(255,255,255,.06)}.set-name{position:absolute;font-weight:900}.real-name{top:12px;left:0;right:0;text-align:center;font-size:27px}.rational-box{position:absolute;left:25px;top:58px;width:68%;bottom:24px;border:4px solid #54d5c2;border-radius:20px}.irrational-box{position:absolute;right:25px;top:58px;width:25%;bottom:24px;border:4px solid var(--orange);border-radius:20px;text-align:center;padding-top:20px}.q-name{top:12px;left:0;right:0;text-align:center;color:#54d5c2;font-size:23px}.irrational-box b{color:var(--orange);font-size:21px}.inner{position:absolute;border:3px solid #54d5c2;border-radius:16px;font-weight:800}.decimal-box{left:22px;right:22px;top:55px;bottom:22px;padding:12px}.integer-box{left:22px;right:22px;top:48px;bottom:18px;padding:11px}.whole-box{left:22px;right:22px;top:44px;bottom:16px;padding:10px}.natural-box{left:22px;right:22px;top:40px;bottom:14px;padding:11px;background:var(--teal);text-align:center}.irrational-box .mini{font-size:31px;line-height:1.5;margin-top:28px}
+    .final-question{font-size:clamp(28px,4.5vw,58px);max-width:980px}.number-rain{position:absolute;inset:0;pointer-events:none}.fall{position:absolute;top:-100px;font-size:42px;font-weight:900;color:rgba(255,255,255,.22);animation:fall linear infinite}@keyframes fall{to{transform:translateY(850px) rotate(270deg)}}
+    .controls{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:10px;padding:14px 18px;background:#081d2e}.controls button{height:44px;min-width:48px;border:0;border-radius:12px;background:#173f5f;color:white;font-size:19px;font-weight:800;cursor:pointer}.controls button:hover{background:var(--teal)}.time{font-variant-numeric:tabular-nums;color:#bdd0dc;font-size:14px}.track{height:9px;background:rgba(255,255,255,.14);border-radius:10px;overflow:hidden;cursor:pointer}.progress{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--orange));border-radius:10px}.dots{display:flex;gap:6px;justify-content:center;padding:0 0 12px;background:#081d2e}.dot{width:9px;height:9px;border-radius:50%;border:0;padding:0;background:#526a7a}.dot.active{background:var(--orange)}.stage.paused *{animation-play-state:paused!important}
+    @media(max-width:700px){.scene{padding:7% 5%}.sort-stage,.patterns{gap:10px}.bucket{min-height:220px;padding:14px}.set-map{height:360px;width:100%}.rational-box{left:12px;width:66%}.irrational-box{right:12px;width:28%;padding:12px 4px}.inner{font-size:12px}.irrational-box .mini{font-size:23px}.controls{grid-template-columns:auto auto 1fr}.time{display:none}}
+  </style>
+</head>
+<body>
+  <div class="player">
+    <div class="stage" id="stage">
+      <section class="scene active">
+        <div class="number-rain" aria-hidden="true"><span class="fall" style="left:8%;animation-duration:8s">7/8</span><span class="fall" style="left:27%;animation-duration:11s;animation-delay:-3s">√2</span><span class="fall" style="left:50%;animation-duration:9s;animation-delay:-6s">π</span><span class="fall" style="left:70%;animation-duration:12s;animation-delay:-5s">0.25</span><span class="fall" style="left:88%;animation-duration:10s;animation-delay:-7s">3/7</span></div>
+        <h1 class="reveal">Where do all numbers <span class="orange">belong?</span></h1>
+        <p class="subtitle reveal" style="--delay:1s">Welcome to the world of rational and irrational numbers.</p>
+      </section>
+
+      <section class="scene">
+        <div class="question-mark">?</div>
+        <h2 class="reveal">What do the words mean?</h2>
+        <div class="words"><div class="word teal reveal" style="--delay:1s">RATIONAL</div><div class="word orange reveal" style="--delay:1.8s">IRRATIONAL</div></div>
+        <p class="subtitle reveal" style="--delay:2.8s">Look closely: rational contains the idea of a <b class="gold">ratio</b>.</p>
+      </section>
+
+      <section class="scene">
+        <h2 class="reveal"><span class="teal">Rational</span> means “can be written as a ratio”</h2>
+        <div class="ratio reveal" style="--delay:.8s"><div class="top">a</div><div class="bar"></div><div class="bottom">b</div></div>
+        <div class="definition reveal" style="--delay:1.6s">where <b>a</b> and <b>b</b> are integers and <b>b ≠ 0</b></div>
+        <div class="formula reveal" style="--delay:2.4s">Examples: 3/4 &nbsp; • &nbsp; −8 &nbsp; • &nbsp; 0.25 &nbsp; • &nbsp; 0.333…</div>
+      </section>
+
+      <section class="scene">
+        <h2 class="reveal">Watch the rational numbers find their home</h2>
+        <div class="sort-stage">
+          <div class="bucket r reveal" style="--delay:.5s"><h3 class="teal">RATIONAL</h3><span class="token" style="--delay:1.2s">7/8</span><span class="token" style="--delay:1.8s">−8.3</span><span class="token" style="--delay:2.4s">0</span><span class="token" style="--delay:3s">7.636363…</span></div>
+          <div class="bucket i reveal" style="--delay:.8s"><h3 class="orange">IRRATIONAL</h3><p class="subtitle" style="margin-top:70px">Something different belongs here…</p></div>
+        </div>
+      </section>
+
+      <section class="scene">
+        <h2 class="reveal"><span class="orange">Irrational</span> means “cannot be written as an integer ratio”</h2>
+        <div class="symbol-row"><div class="symbol teal" style="--delay:.8s">√2</div><div class="symbol gold" style="--delay:1.5s">π</div><div class="symbol orange" style="--delay:2.2s">√17</div></div>
+        <p class="subtitle reveal" style="--delay:3s">Their decimals continue forever without repeating.</p>
+        <div class="formula reveal" style="--delay:3.8s">3.765431702891…</div>
+      </section>
+
+      <section class="scene">
+        <h2 class="reveal">The decimal pattern reveals the set</h2>
+        <div class="patterns">
+          <div class="pattern reveal" style="--delay:.7s"><h3 class="teal">Terminates</h3><div class="digits"><span>0.375000000000000000</span></div><p>Decimal • D</p></div>
+          <div class="pattern reveal" style="--delay:1.4s"><h3 class="gold">Repeats forever</h3><div class="digits"><span>0.636363636363636363</span></div><p>Non-decimal rational • ℚ \ D</p></div>
+          <div class="pattern reveal" style="--delay:2.1s"><h3 class="orange">Never repeats</h3><div class="digits"><span>1.414213562373095048</span></div><p>Irrational • ℝ \ ℚ</p></div>
+        </div>
+      </section>
+
+      <section class="scene">
+        <h2 class="reveal">Every number has a place</h2>
+        <div class="set-map reveal" style="--delay:.7s">
+          <div class="set-name real-name">ℝ REAL NUMBERS</div>
+          <div class="rational-box"><div class="set-name q-name">ℚ RATIONAL</div><div class="inner decimal-box">D DECIMAL<div class="inner integer-box">ℤ INTEGERS<div class="inner whole-box">W WHOLE<div class="inner natural-box">ℕ NATURAL</div></div></div></div></div>
+          <div class="irrational-box"><b>IRRATIONAL</b><div class="mini">√2<br>π<br>√17</div></div>
+        </div>
+        <p class="subtitle reveal" style="--delay:1.7s">ℕ ⊂ W ⊂ ℤ ⊂ D ⊂ ℚ ⊂ ℝ</p>
+      </section>
+
+      <section class="scene">
+        <h2 class="final-question reveal">Can you decide where each number belongs?</h2>
+        <div class="symbol-row"><div class="symbol teal" style="--delay:.8s">3/5</div><div class="symbol gold" style="--delay:1.4s">√5</div><div class="symbol orange" style="--delay:2s">0.272727…</div></div>
+        <p class="subtitle reveal" style="--delay:3s">Let the lesson begin.</p>
+      </section>
+    </div>
+    <div class="controls">
+      <button id="replay" aria-label="Replay">↻</button>
+      <button id="playPause" aria-label="Pause">❚❚</button>
+      <div class="track" id="track" aria-label="Animation progress"><div class="progress" id="progress"></div></div>
+      <div class="time" id="time">0:00 / 0:58</div>
+    </div>
+    <div class="dots" id="dots" aria-label="Scenes"></div>
+  </div>
+  <script>
+    const scenes=[...document.querySelectorAll('.scene')];
+    const durations=[7000,7000,8000,7000,8000,8000,7000,6000];
+    const total=durations.reduce((a,b)=>a+b,0);
+    const stage=document.getElementById('stage'),progress=document.getElementById('progress'),time=document.getElementById('time'),playPause=document.getElementById('playPause'),dots=document.getElementById('dots');
+    let index=0,elapsed=0,playing=true,last=performance.now();
+    scenes.forEach((_,i)=>{const b=document.createElement('button');b.className='dot'+(i===0?' active':'');b.setAttribute('aria-label','Go to scene '+(i+1));b.addEventListener('click',()=>go(i,0));dots.appendChild(b)});
+    const dotButtons=[...dots.children];
+    function restartAnimation(el){el.classList.remove('active');void el.offsetWidth;el.classList.add('active')}
+    function go(i,e=0){scenes.forEach(s=>s.classList.remove('active'));index=Math.max(0,Math.min(scenes.length-1,i));elapsed=Math.max(0,Math.min(durations[index],e));restartAnimation(scenes[index]);dotButtons.forEach((d,n)=>d.classList.toggle('active',n===index));last=performance.now();draw()}
+    function absoluteTime(){let t=elapsed;for(let i=0;i<index;i++)t+=durations[i];return t}
+    function format(ms){const sec=Math.floor(ms/1000);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
+    function draw(){const t=absoluteTime();progress.style.width=(t/total*100)+'%';time.textContent=format(t)+' / '+format(total)}
+    function tick(now){const delta=now-last;last=now;if(playing){elapsed+=delta;if(elapsed>=durations[index]){if(index<scenes.length-1)go(index+1,0);else{elapsed=durations[index];playing=false;playPause.textContent='▶';playPause.setAttribute('aria-label','Play')}}draw()}requestAnimationFrame(tick)}
+    function toggle(){playing=!playing;stage.classList.toggle('paused',!playing);playPause.textContent=playing?'❚❚':'▶';playPause.setAttribute('aria-label',playing?'Pause':'Play');last=performance.now()}
+    playPause.addEventListener('click',toggle);
+    document.getElementById('replay').addEventListener('click',()=>{playing=true;stage.classList.remove('paused');playPause.textContent='❚❚';go(0,0)});
+    document.getElementById('track').addEventListener('click',e=>{const r=e.currentTarget.getBoundingClientRect(),target=(e.clientX-r.left)/r.width*total;let sum=0;for(let i=0;i<durations.length;i++){if(target<=sum+durations[i]){go(i,target-sum);break}sum+=durations[i]}});
+    document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();toggle()}if(e.key==='ArrowRight')go(index+1,0);if(e.key==='ArrowLeft')go(index-1,0)});
+    setTimeout(()=>{last=performance.now();requestAnimationFrame(tick)},400);
+  </script>
+</body>
+</html>

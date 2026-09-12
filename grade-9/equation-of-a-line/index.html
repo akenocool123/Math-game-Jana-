@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slope-Intercept Form Interactive Visualizer</title>
+    <style>
+        :root {
+            --primary: #c53030;
+            --secondary: #2f855a;
+            --grid: #cbd5e0;
+            --dark: #2d3748;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f7fafc;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+        }
+        h2 { color: #2b6cb0; margin-top: 0; }
+        .equation-display {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin: 15px 0;
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .m-text { color: var(--primary); }
+        .b-text { color: var(--secondary); }
+        
+        svg {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-badge {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Interactive Slope-Intercept Visualizer</h2>
+    <p>Adjust the sliders below to dynamically change the slope and intercept.</p>
+
+    <div class="equation-display">
+        y = <span class="m-text" id="eq-m">1.5</span>x + <span class="b-text" id="eq-b">1</span>
+    </div>
+
+    <!-- Interactive Canvas Graph -->
+    <svg width="400" height="400" viewBox="-10 -10 20 20" id="graph">
+        <!-- Grid Lines -->
+        <g stroke="#e2e8f0" stroke-width="0.05">
+            <line x1="-10" y1="-8" x2="10" y2="-8" />
+            <line x1="-10" y1="-6" x2="10" y2="-6" />
+            <line x1="-10" y1="-4" x2="10" y2="-4" />
+            <line x1="-10" y1="-2" x2="10" y2="-2" />
+            <line x1="-10" y1="2" x2="10" y2="2" />
+            <line x1="-10" y1="4" x2="10" y2="4" />
+            <line x1="-10" y1="6" x2="10" y2="6" />
+            <line x1="-10" y1="8" x2="10" y2="8" />
+            
+            <line x1="-8" y1="-10" x2="-8" y2="10" />
+            <line x1="-6" y1="-10" x2="-6" y2="10" />
+            <line x1="-4" y1="-10" x2="-4" y2="10" />
+            <line x1="-2" y1="-10" x2="-2" y2="10" />
+            <line x1="2" y1="-10" x2="2" y2="10" />
+            <line x1="4" y1="-10" x2="4" y2="10" />
+            <line x1="6" y1="-10" x2="6" y2="10" />
+            <line x1="8" y1="-10" x2="8" y2="10" />
+        </g>
+        
+        <!-- Main Axes -->
+        <line x1="-10" y1="0" x2="10" y2="0" stroke="#718096" stroke-width="0.1" />
+        <line x1="0" y1="-10" x2="0" y2="10" stroke="#718096" stroke-width="0.1" />
+
+        <!-- Slope Indicator Triangle (Dynamic) -->
+        <path id="slope-triangle" fill="none" stroke-dasharray="0.15" stroke-width="0.08" />
+
+        <!-- Linear Function Line -->
+        <line id="function-line" x1="-10" y1="0" x2="10" y2="0" stroke="#4299e1" stroke-width="0.15" />
+        
+        <!-- Intercept Point Marker -->
+        <circle id="intercept-dot" r="0.25" fill="var(--secondary)" />
+    </svg>
+
+    <!-- Sliders -->
+    <div class="control-group">
+        <label for="slope-slider">Slope (<span class="m-text">m</span>): <span class="value-badge" id="val-m">1.50</span></label>
+        <input type="range" id="slope-slider" min="-3" max="3" step="0.25" value="1.5">
+    </div>
+
+    <div class="control-group">
+        <label for="intercept-slider">y-Intercept (<span class="value-badge b-text">b</span>): <span class="value-badge" id="val-b">1.00</span></label>
+        <input type="range" id="intercept-slider" min="-5" max="5" step="0.5" value="1">
+    </div>
+</div>
+
+<script>
+    const slopeSlider = document.getElementById('slope-slider');
+    const interceptSlider = document.getElementById('intercept-slider');
+    
+    const line = document.getElementById('function-line');
+    const dot = document.getElementById('intercept-dot');
+    const triangle = document.getElementById('slope-triangle');
+    
+    const eqM = document.getElementById('eq-m');
+    const eqB = document.getElementById('eq-b');
+    const valM = document.getElementById('val-m');
+    const valB = document.getElementById('val-b');
+
+    function updateGraph() {
+        const m = parseFloat(slopeSlider.value);
+        const b = parseFloat(interceptSlider.value);
+
+        // Update textual markers
+        valM.innerText = m.toFixed(2);
+        valB.innerText = (b >= 0 ? "" : "- ") + Math.abs(b).toFixed(2);
+        eqM.innerText = m === 1 ? "" : m === -1 ? "-" : m;
+        eqB.innerText = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+
+        // Map math coordinates to inverted SVG pixel space values
+        const yLeft = -(m * -10 + b);
+        const yRight = -(m * 10 + b);
+
+        line.setAttribute('y1', yLeft);
+        line.setAttribute('y2', yRight);
+        dot.setAttribute('cy', -b);
+
+        // Render standard Rise over Run Step Triangle (from x=0 to x=2)
+        const runEnd = 2;
+        const riseEnd = m * runEnd + b;
+        triangle.setAttribute('d', `M 0 ${-b} L ${runEnd} ${-b} L ${runEnd} ${-riseEnd}`);
+        triangle.setAttribute('stroke', m >= 0 ? 'var(--primary)' : '#ed8936');
+    }
+
+    slopeSlider.addEventListener('input', updateGraph);
+    interceptSlider.addEventListener('input', updateGraph);
+    
+    // Initial Load Run
+    updateGraph();
+</script>
+
+</body>
+</html>

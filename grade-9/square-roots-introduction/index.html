@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Square Roots — Animated Introduction</title>
+<style>
+  :root{--blue:#3d8dff;--purple:#6b50c7;--ink:#152442;--muted:#626772;--pale:#ddf2fc;--mint:#e1f5ed;--gold:#ffd05a;--bg:#f7f9fc}
+  *{box-sizing:border-box} html,body{height:100%;margin:0}
+  body{display:grid;place-items:center;background:#dfe7f1;font-family:Arial,Helvetica,sans-serif;color:var(--ink);overflow:hidden}
+  button,input{font:inherit}
+  .app{width:min(100vw,177.78vh);height:min(100vh,56.25vw);min-height:360px;background:white;position:relative;overflow:hidden;box-shadow:0 20px 70px #27364c33}
+  .topbar{position:absolute;z-index:20;left:3.3%;right:3.3%;top:4%;display:flex;justify-content:space-between;align-items:center;font-weight:800;letter-spacing:.08em;color:var(--blue);font-size:clamp(12px,1.25vw,22px)}
+  .counter{color:var(--muted);font-size:.72em;letter-spacing:.04em}
+  .scene{position:absolute;inset:0;padding:10% 6% 13%;opacity:0;transform:translateY(18px) scale(.99);pointer-events:none;transition:opacity .65s ease,transform .65s ease}
+  .scene.active{opacity:1;transform:none}
+  .eyebrow{color:var(--blue);font-weight:800;letter-spacing:.08em;font-size:clamp(13px,1.35vw,23px);margin-bottom:1.2%}
+  h1,h2,p{margin:0} h1{font-size:clamp(38px,6vw,96px);line-height:1.05;letter-spacing:-.035em;max-width:92%}
+  h2{font-size:clamp(30px,4.2vw,68px);line-height:1.08;letter-spacing:-.025em}
+  .sub{font-size:clamp(16px,2vw,32px);color:var(--muted);line-height:1.35;margin-top:2.4%}
+  .blue{color:var(--blue)} .purple{color:var(--purple)}
+  .prompt{position:absolute;left:6%;bottom:17%;font-size:clamp(16px,2vw,32px);color:var(--muted);font-style:italic}
+  .word-row{display:grid;grid-template-columns:1fr auto 1fr auto 1.3fr;align-items:center;gap:2%;margin-top:5%}
+  .word{padding:4.5% 3%;border:2px solid var(--purple);border-radius:20px;text-align:center;font-weight:900;font-size:clamp(21px,3vw,48px);background:#fff}
+  .word.square{background:var(--gold)} .word.root{background:var(--mint)} .word.answer{background:#eee9ff}
+  .operator{font-size:clamp(26px,3vw,52px);font-weight:900;color:var(--purple)}
+  .meaning{text-align:center;margin-top:4%;font-size:clamp(18px,2.25vw,36px);font-weight:700}
+  .demo-layout{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:7%;height:78%}
+  .grid-square{width:min(35vw,38vh);aspect-ratio:1;display:grid;grid-template-columns:repeat(6,1fr);border:4px solid var(--blue);box-shadow:0 15px 40px #3d8dff22}
+  .cell{border:1px solid #ffffffaa;background:var(--pale);transform:scale(.15);opacity:0;animation:cellIn .25s forwards}
+  @keyframes cellIn{to{transform:scale(1);opacity:1}}
+  .equation-stack{text-align:center}.equation{font-size:clamp(30px,4.3vw,70px);font-weight:900;line-height:1.3}
+  .arrow{font-size:clamp(25px,3.2vw,52px);color:var(--blue);animation:breathe 1.2s infinite alternate}
+  @keyframes breathe{to{transform:scale(1.12)}}
+  .sqrt{display:inline-flex;align-items:flex-start;white-space:nowrap;vertical-align:-.1em}
+  .sqrt::before{content:'√';font-family:'Times New Roman',serif;font-weight:400;line-height:.95;margin-right:-.03em;transform:translateY(.09em)}
+  .radicand{border-top:.075em solid currentColor;padding:.08em .08em 0 .04em;line-height:.88}
+  .garden-layout{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:6%;height:80%}
+  .garden{width:min(36vw,42vh);aspect-ratio:1;position:relative;border:5px solid #2f9e66;background:repeating-linear-gradient(45deg,#dff5e8 0 14px,#ccefdc 14px 28px);box-shadow:inset 0 0 0 10px #ffffff77,0 18px 45px #245a3d26}
+  .garden::before,.garden::after{content:'?';position:absolute;color:var(--blue);font-size:clamp(24px,3vw,50px);font-weight:900}
+  .garden::before{left:50%;bottom:-15%;transform:translateX(-50%)} .garden::after{right:-10%;top:50%;transform:translateY(-50%)}
+  .area{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(35px,5vw,80px);font-weight:900;color:#12623c}
+  .question-list{display:grid;gap:1.1em;margin-top:6%;font-size:clamp(18px,2.3vw,36px);font-weight:700}
+  .question-list span{opacity:0;transform:translateX(-25px)}
+  .scene.active .question-list span{animation:questionIn .65s forwards}
+  @keyframes questionIn{to{opacity:1;transform:none}}
+  .landmarks{display:flex;align-items:center;justify-content:center;gap:5%;margin-top:4%;font-size:clamp(32px,5vw,82px);font-weight:900}
+  .landmark{padding:2% 4%;border-radius:18px;background:var(--pale);color:var(--blue)}
+  .numberline{position:relative;margin:7% auto 0;width:82%;height:95px;border-top:6px solid var(--ink)}
+  .tick{position:absolute;top:-13px;width:5px;height:25px;background:var(--ink)}
+  .tick span{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:clamp(20px,2.4vw,38px);font-weight:800}
+  .t8{left:8%}.t9{left:92%}
+  .root-dot{position:absolute;left:49%;top:-19px;width:32px;height:32px;border-radius:50%;background:var(--purple);box-shadow:0 0 0 9px #6b50c733;transform:scale(0)}
+  .scene.active .root-dot{animation:dotPop .8s cubic-bezier(.2,1.5,.5,1) forwards}
+  .root-label{position:absolute;left:49%;top:-72px;transform:translateX(-50%);font-size:clamp(24px,3vw,48px);font-weight:900;color:var(--purple)}
+  @keyframes dotPop{from{transform:scale(0)}to{transform:scale(1)}}
+  .final{text-align:center;padding-top:12%}.final .equation{margin:5% auto 3%;padding:2.5% 4%;background:var(--pale);border-radius:22px;width:max-content;max-width:100%}
+  .chips{display:flex;justify-content:center;flex-wrap:wrap;gap:1.5%;margin-top:4%}.chip{padding:1.1% 2%;border-radius:999px;background:#eee9ff;color:var(--purple);font-weight:800;font-size:clamp(14px,1.6vw,26px)}
+  .controls{position:absolute;z-index:30;left:3.3%;right:3.3%;bottom:3%;display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center;background:#ffffffea;border:1px solid #dfe5ee;border-radius:16px;padding:10px 14px;box-shadow:0 8px 28px #22314b20}
+  .btn{border:0;background:var(--ink);color:white;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer}.btn.secondary{background:#e9eef5;color:var(--ink)}
+  .timeline{width:100%;accent-color:var(--blue);cursor:pointer}.time{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;font-size:14px}
+  .start{position:absolute;z-index:50;inset:0;background:linear-gradient(135deg,#ffffff 45%,#eaf4ff);display:grid;place-items:center;text-align:center;padding:8%}
+  .start.hidden{display:none}.start h1{max-width:100%}.start p{margin:2% 0 4%;font-size:clamp(17px,2vw,31px);color:var(--muted)}.start button{font-size:clamp(17px,1.8vw,28px);padding:14px 28px}
+  @media (max-width:760px){.scene{padding-top:14%}.word-row{grid-template-columns:1fr}.operator{display:none}.demo-layout,.garden-layout{grid-template-columns:1fr 1fr}.controls{grid-template-columns:auto auto 1fr}.time{display:none}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main class="app" aria-label="Animated introduction to square roots">
+  <div class="topbar"><span>SQUARE ROOTS</span><span class="counter" id="sceneCounter">INTRODUCTION • 01/06</span></div>
+
+  <section class="scene" data-start="0" data-end="8" aria-label="Opening question">
+    <div class="eyebrow">THINK FIRST</div>
+    <h1>What does the word<br><span class="blue">“square root”</span> mean?</h1>
+    <p class="prompt">Write one prediction. Then explain it using an example.</p>
+  </section>
+
+  <section class="scene" data-start="8" data-end="17" aria-label="Literal meaning">
+    <div class="eyebrow">LOOK INSIDE THE WORDS</div>
+    <h2>What does “square root” literally mean?</h2>
+    <div class="word-row">
+      <div class="word square">SQUARE</div><div class="operator">+</div>
+      <div class="word root">ROOT</div><div class="operator">=</div>
+      <div class="word answer">SQUARE ROOT</div>
+    </div>
+    <p class="meaning">It asks: <span class="purple">“What number was squared?”</span></p>
+  </section>
+
+  <section class="scene" data-start="17" data-end="28" aria-label="Square area example">
+    <div class="demo-layout">
+      <div><div class="eyebrow">A SQUARE WITH AREA 36</div><div class="grid-square" id="grid"></div></div>
+      <div class="equation-stack">
+        <div class="equation">6 × 6 = 36</div>
+        <div class="arrow">↓ reverse the operation ↓</div>
+        <div class="equation"><span class="sqrt"><span class="radicand">36</span></span> = 6</div>
+        <p class="sub">A square root reverses squaring.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" data-start="28" data-end="39" aria-label="Garden exploration">
+    <div class="garden-layout">
+      <div>
+        <div class="eyebrow">REAL-LIFE EXPLORATION</div>
+        <h2>A square garden has area <span class="blue">72 m²</span>.</h2>
+        <div class="question-list">
+          <span style="animation-delay:.2s">What is its exact side length?</span>
+          <span style="animation-delay:.8s">Can it be a whole number?</span>
+          <span style="animation-delay:1.4s">Between which integers does it lie?</span>
+        </div>
+      </div>
+      <div class="garden"><div class="area">72 m²</div></div>
+    </div>
+  </section>
+
+  <section class="scene" data-start="39" data-end="50" aria-label="Estimating square root of 72">
+    <div class="eyebrow">PERFECT SQUARES ARE LANDMARKS</div>
+    <h2>Find the perfect squares around 72.</h2>
+    <div class="landmarks"><span class="landmark">64</span><span>&lt; 72 &lt;</span><span class="landmark">81</span></div>
+    <div class="numberline" aria-label="Square root of 72 lies between 8 and 9">
+      <div class="tick t8"><span>8</span></div><div class="tick t9"><span>9</span></div>
+      <div class="root-label"><span class="sqrt"><span class="radicand">72</span></span></div><div class="root-dot"></div>
+    </div>
+    <p class="meaning">Therefore, <span class="purple">8 &lt; <span class="sqrt"><span class="radicand">72</span></span> &lt; 9</span>.</p>
+  </section>
+
+  <section class="scene final" data-start="50" data-end="60" aria-label="Lesson preview">
+    <div class="eyebrow">THE EXACT LENGTH</div>
+    <h2>How can we simplify the answer?</h2>
+    <div class="equation"><span class="sqrt"><span class="radicand">72</span></span> = <span class="sqrt"><span class="radicand">36 × 2</span></span> = 6<span class="sqrt"><span class="radicand">2</span></span></div>
+    <p class="sub">Today we will discover how square roots connect area, perfect squares and exact lengths.</p>
+    <div class="chips"><span class="chip">Understand</span><span class="chip">Estimate</span><span class="chip">Simplify</span><span class="chip">Apply</span></div>
+  </section>
+
+  <div class="controls" aria-label="Animation controls">
+    <button class="btn" id="playBtn" type="button">Pause</button>
+    <button class="btn secondary" id="restartBtn" type="button">Restart</button>
+    <input class="timeline" id="timeline" type="range" min="0" max="60" step="0.05" value="0" aria-label="Animation timeline">
+    <span class="time" id="timeLabel">0:00 / 1:00</span>
+  </div>
+
+  <div class="start" id="startScreen">
+    <div><div class="eyebrow">GRADE 8 • ANIMATED INTRODUCTION</div><h1>Square Roots</h1><p>A one-minute visual exploration based on the lesson PowerPoint.</p><button class="btn" id="startBtn" type="button">▶ Start animation</button></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const duration=60;
+  const scenes=[...document.querySelectorAll('.scene')];
+  const timeline=document.getElementById('timeline');
+  const playBtn=document.getElementById('playBtn');
+  const restartBtn=document.getElementById('restartBtn');
+  const startBtn=document.getElementById('startBtn');
+  const startScreen=document.getElementById('startScreen');
+  const timeLabel=document.getElementById('timeLabel');
+  const sceneCounter=document.getElementById('sceneCounter');
+  const grid=document.getElementById('grid');
+  for(let i=0;i<36;i++){
+    const cell=document.createElement('span'); cell.className='cell'; cell.style.animationDelay=`${i*0.035}s`; grid.appendChild(cell);
+  }
+  let playing=false, current=0, last=0, raf=0, activeIndex=-1;
+  const format=t=>`0:${String(Math.floor(t)).padStart(2,'0')}`;
+  function render(){
+    current=Math.max(0,Math.min(duration,current));
+    timeline.value=current;
+    timeLabel.textContent=`${format(current)} / 1:00`;
+    let index=scenes.findIndex((s,i)=>current>=+s.dataset.start && (current<+s.dataset.end || i===scenes.length-1));
+    if(index<0) index=scenes.length-1;
+    if(index!==activeIndex){
+      scenes.forEach((s,i)=>s.classList.toggle('active',i===index));
+      activeIndex=index;
+      sceneCounter.textContent=`INTRODUCTION • ${String(index+1).padStart(2,'0')}/06`;
+      if(index===2){
+        [...grid.children].forEach((c,i)=>{c.style.animation='none';void c.offsetWidth;c.style.animation=`cellIn .25s ${i*.035}s forwards`;});
+      }
+    }
+  }
+  function tick(now){
+    if(!playing)return;
+    if(!last)last=now;
+    current+=(now-last)/1000; last=now;
+    if(current>=duration){current=duration;playing=false;playBtn.textContent='Play';render();return;}
+    render();raf=requestAnimationFrame(tick);
+  }
+  function play(){if(current>=duration)current=0;playing=true;last=0;playBtn.textContent='Pause';cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
+  function pause(){playing=false;playBtn.textContent='Play';cancelAnimationFrame(raf)}
+  startBtn.addEventListener('click',()=>{startScreen.classList.add('hidden');render();play()});
+  playBtn.addEventListener('click',()=>playing?pause():play());
+  restartBtn.addEventListener('click',()=>{current=0;activeIndex=-1;render();play()});
+  timeline.addEventListener('input',()=>{current=+timeline.value;activeIndex=-1;render()});
+  document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();playing?pause():play()}if(e.key==='ArrowRight'){current=Math.min(duration,current+3);activeIndex=-1;render()}if(e.key==='ArrowLeft'){current=Math.max(0,current-3);activeIndex=-1;render()}});
+  render();
+})();
+</script>
+</body>
+</html>

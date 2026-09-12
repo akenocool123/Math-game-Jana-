@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade 8 Remarkable Identities Quiz</title>
+<style>
+:root{
+  --bg:#f4f8fb;--card:#fff;--ink:#1e293b;--muted:#64748b;
+  --teal:#28aaa5;--blue:#5267d8;--gold:#f2b84b;--green:#178a50;
+  --red:#c73b4e;--line:#dce5ee;--shadow:0 14px 32px rgba(35,52,80,.12)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:
+radial-gradient(circle at 0 0,#dcf7f4 0,transparent 28%),
+radial-gradient(circle at 100% 10%,#e6e9ff 0,transparent 25%),var(--bg);color:var(--ink)}
+header{text-align:center;padding:26px 18px 10px}
+h1{margin:7px 0;font-size:clamp(2rem,5vw,3.2rem)}
+header p{max-width:820px;margin:auto;color:var(--muted);line-height:1.5}
+.badge{display:inline-block;background:#def5f3;color:#147873;border-radius:999px;padding:7px 11px;font-weight:800;font-size:.85rem}
+.wrap{max-width:1040px;margin:auto;padding:0 16px 55px}
+.topbar{display:flex;gap:10px;align-items:center;margin:16px 0}
+.progress{flex:1;height:12px;border-radius:99px;background:#e4ebf1;overflow:hidden}
+#bar{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--blue));transition:.3s}
+.counter{font-weight:800;white-space:nowrap}
+.panel{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;margin:18px 0}
+.qtitle{font-size:1.35rem;font-weight:800;margin-bottom:12px}
+.expression{text-align:center;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;background:#f7f9fd;border-radius:16px;padding:17px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.choice{padding:12px 14px;border:1px solid #d7e0ea;border-radius:12px;margin:9px 0;background:#fff;cursor:pointer;transition:.2s}
+.choice:hover{border-color:var(--blue);transform:translateY(-1px)}
+.choice.selected{outline:2px solid var(--blue);background:#f0f3ff}
+button{border:0;border-radius:12px;padding:11px 16px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer}
+button.secondary{background:#e9edff;color:#4052bb}
+button.green{background:var(--green)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.feedback{min-height:24px;margin-top:12px;font-weight:800}.good{color:var(--green)}.bad{color:var(--red)}
+input{width:100%;padding:12px;border:1px solid #cad5e1;border-radius:11px;font-size:1rem}
+.controls{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+.dragbank,.dropzone{min-height:70px;border:2px dashed #abb7c7;border-radius:13px;padding:11px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fafcff}
+.drag{background:#e9edff;border:1px solid #ccd3ff;border-radius:10px;padding:9px 12px;font-weight:800;cursor:grab}
+.drag.dragging{opacity:.4}
+.dropgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+@media(max-width:760px){.dropgrid{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+.video{background:#142033;color:#fff;border-radius:17px;padding:14px}
+.stage{height:180px;border-radius:13px;background:linear-gradient(145deg,#293855,#111827);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:1.7rem;padding:16px}
+.playline{height:6px;border-radius:99px;background:#33415b;margin:12px 0;overflow:hidden}
+.playline span{height:100%;width:0;display:block;background:#68e4d5}
+.video.playing .playline span{animation:play 7s linear forwards}
+@keyframes play{to{width:100%}}
+.squareScene{width:min(360px,95%);aspect-ratio:1;margin:auto;position:relative;border:4px solid #387a73;background:#98db8f}
+.squareScene .old{position:absolute;left:0;top:0;width:72%;height:72%;background:#72c46b;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem}
+.squareScene .right{position:absolute;right:0;top:0;width:28%;height:72%;background:#d6a85f;display:flex;align-items:center;justify-content:center;font-weight:800}
+.squareScene .bottom{position:absolute;left:0;bottom:0;width:72%;height:28%;background:#c8914a;display:flex;align-items:center;justify-content:center;font-weight:800}
+.squareScene .corner{position:absolute;right:0;bottom:0;width:28%;height:28%;background:#f0bd61;display:flex;align-items:center;justify-content:center;font-weight:800}
+.tip{background:#fff6d7;border-left:5px solid var(--gold);border-radius:10px;padding:11px;margin-top:12px}
+.result{text-align:center;padding:25px}
+.scoreBig{font-size:3rem;font-weight:900;color:var(--blue)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">Grade 8 • Lebanese Curriculum</span>
+  <h1>Remarkable Identities Quiz</h1>
+  <p>12 interactive questions based on expanding, simplifying and the three remarkable identities.</p>
+</header>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="progress"><div id="bar"></div></div>
+    <div class="counter">Question <span id="qnum">1</span>/12</div>
+  </div>
+
+  <div id="quiz"></div>
+</div>
+
+<script>
+const questions = [
+{
+ type:"mcq",
+ title:"1. Reverse identity",
+ prompt:"Which remarkable identity is hidden in the expression below?",
+ expr:"9x² + 24x + 16",
+ options:["(3x + 4)²","(3x − 4)²","(9x + 4)²","(3x + 8)²"],
+ answer:0,
+ explain:"9x² = (3x)², 16 = 4² and 24x = 2(3x)(4), so the expression is (3x + 4)²."
+},
+{
+ type:"mcq",
+ title:"2. Simplify the expression",
+ prompt:"Choose the correct simplified result.",
+ expr:"(2x − 5)² − (x − 1)(x + 1)",
+ options:["3x² − 20x + 26","5x² − 20x + 24","3x² − 20x + 24","5x² − 20x + 26"],
+ answer:0,
+ explain:"(2x − 5)² − (x − 1)(x + 1) = (4x² − 20x + 25) − (x² − 1) = 3x² − 20x + 26."
+},
+{
+ type:"mcq",
+ title:"3. Two identities in one expression",
+ prompt:"Simplify completely.",
+ expr:"(x + 6)² − (x − 6)(x + 6)",
+ options:["12x + 36","12x + 72","x² + 12x + 72","6x + 36"],
+ answer:1,
+ explain:"(x + 6)² = x² + 12x + 36 and (x − 6)(x + 6) = x² − 36. Their difference is 12x + 72."
+},
+{
+ type:"dragclass",
+ title:"4. Drag and drop: classify difficult forms",
+ prompt:"Drag each expression into the correct identity family.",
+ items:[
+   ["(2x + 3y)²","sum"],["(5a − 2b)²","diff"],["(4m − n)(4m + n)","conj"],
+   ["(x/2 + 7)²","sum"],["(3p − 5)(3p + 5)","conj"],["(2z − 3/4)²","diff"]
+ ],
+ explain:"The structure matters: square of a sum, square of a difference, or conjugate product."
+},
+{
+ type:"input",
+ title:"5. Fast calculation without direct multiplication",
+ prompt:"Use a remarkable identity to calculate 49².",
+ expr:"49² = (50 − 1)²",
+ answerText:"2401",
+ explain:"(50 − 1)² = 2500 − 100 + 1 = 2401."
+},
+{
+ type:"mcq",
+ title:"6. Fraction coefficients",
+ prompt:"Develop and simplify.",
+ expr:"(x/2 − 3)²",
+ options:["x²/4 − 3x + 9","x²/4 − 6x + 9","x²/2 − 3x + 9","x²/4 + 3x + 9"],
+ answer:0,
+ explain:"(x/2)² − 2(x/2)(3) + 3² = x²/4 − 3x + 9."
+},
+{
+ type:"garden",
+ title:"7. Real-life situation: enlarging a square garden",
+ prompt:"A square garden has side x metres. A border of width 1.5 m is added to the right and bottom, creating a larger square. Which expression gives the increase in area?",
+ options:["3x + 2.25","x² + 3x + 2.25","1.5x + 2.25","3x + 1.5"],
+ answer:0,
+ explain:"Increase = (x + 1.5)² − x² = x² + 3x + 2.25 − x² = 3x + 2.25."
+},
+{
+ type:"dragbuild",
+ title:"8. Drag and drop: build a harder expansion",
+ prompt:"Build the expansion of (2x − 3)² in the correct order.",
+ tokens:["4x²","−","12x","+","9","6x","3","2x²"],
+ answerTokens:["4x²","−","12x","+","9"],
+ explain:"(2x − 3)² = (2x)² − 2(2x)(3) + 3² = 4x² − 12x + 9."
+},
+{
+ type:"mcq",
+ title:"9. Find the missing number",
+ prompt:"For which positive number k is the expression a perfect square?",
+ expr:"x² + kx + 49",
+ options:["7","14","21","28"],
+ answer:1,
+ explain:"If x² + kx + 49 = (x + 7)², then the middle term is 14x, so k = 14."
+},
+{
+ type:"input",
+ title:"10. Product near a round number",
+ prompt:"Calculate using a remarkable identity.",
+ expr:"31 × 29",
+ answerText:"899",
+ explain:"31 × 29 = (30 + 1)(30 − 1) = 30² − 1² = 899."
+},
+{
+ type:"mcq",
+ title:"11. Real-life square tile challenge",
+ prompt:"A square tile has side (2x − 1) cm. A second square tile has side (2x + 1) cm. What is the difference between their areas?",
+ expr:"(2x + 1)² − (2x − 1)²",
+ options:["4x","8x","4x + 2","8x + 2"],
+ answer:1,
+ explain:"Using expansion, the difference is (4x² + 4x + 1) − (4x² − 4x + 1) = 8x."
+},
+{
+ type:"mcq",
+ title:"12. Final challenge",
+ prompt:"Simplify completely.",
+ expr:"(3x + 2)² − (3x − 2)² + (x − 5)(x + 5)",
+ options:["x² + 24x − 25","9x² + 24x − 25","x² + 12x − 25","x² + 24x + 25"],
+ answer:0,
+ explain:"The difference of the first two squares is 24x, and (x − 5)(x + 5) = x² − 25. Total: x² + 24x − 25."
+}
+]
+
+let index=0, score=0, answered=false, selected=null, dragged=null;
+const quiz=document.getElementById("quiz");
+
+function render(){
+ answered=false; selected=null;
+ document.getElementById("qnum").textContent=index+1;
+ document.getElementById("bar").style.width=(index/12*100)+"%";
+ const q=questions[index];
+ let body=`<div class="panel"><div class="qtitle">${q.title}</div><p>${q.prompt}</p>`;
+ if(q.expr) body+=`<div class="expression">${q.expr}</div>`;
+
+ if(q.type==="mcq"){
+   body+=optionsHTML(q.options);
+ }
+ if(q.type==="video"){
+   body+=`<div class="grid2"><div class="video" id="videoBox">
+     <div class="stage" id="stage">${q.frames[0]}</div>
+     <div class="playline"><span></span></div>
+     <button onclick="playClip()">▶ Play mini clip</button>
+   </div><div>${optionsHTML(q.options)}</div></div>`;
+ }
+ if(q.type==="input"){
+   body+=`<input id="answerInput" inputmode="numeric" placeholder="Enter your answer">`;
+ }
+ if(q.type==="garden"){
+   body+=`<div class="grid2"><div class="squareScene">
+     <div class="old">a²</div><div class="right">ab</div><div class="bottom">ab</div><div class="corner">b²</div>
+   </div><div>${optionsHTML(q.options)}<div class="tip">Think of the large square as four regions.</div></div></div>`;
+ }
+ if(q.type==="dragclass"){
+   body+=`<div class="dragbank" id="bank">`;
+   q.items.forEach((it,i)=>body+=`<div class="drag" draggable="true" data-type="${it[1]}">${it[0]}</div>`);
+   body+=`</div><div class="dropgrid">
+     <div class="box"><b>(a + b)²</b><div class="dropzone classzone" data-accept="sum"></div></div>
+     <div class="box"><b>(a − b)²</b><div class="dropzone classzone" data-accept="diff"></div></div>
+     <div class="box"><b>(a − b)(a + b)</b><div class="dropzone classzone" data-accept="conj"></div></div>
+   </div>`;
+ }
+ if(q.type==="dragbuild"){
+   body+=`<div class="dragbank" id="bank">`;
+   q.tokens.forEach(t=>body+=`<div class="drag" draggable="true" data-token="${t}">${t}</div>`);
+   body+=`</div><br><div class="box"><b>Build here:</b><div class="dropzone" id="buildZone"></div></div>`;
+ }
+
+ body+=`<div id="feedback" class="feedback"></div>
+ <div class="controls"><button class="secondary" onclick="restart()">Restart quiz</button>
+ <div><button id="checkBtn" onclick="check()">Check answer</button>
+ <button id="nextBtn" class="green hide" onclick="next()">Next question</button></div></div></div>`;
+ quiz.innerHTML=body;
+ setupDrag();
+}
+
+function optionsHTML(opts){
+ return opts.map((o,i)=>`<div class="choice" onclick="choose(this,${i})">${o}</div>`).join("");
+}
+function choose(el,i){
+ if(answered)return;
+ selected=i;
+ document.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+ el.classList.add("selected");
+}
+function playClip(){
+ const q=questions[index],box=document.getElementById("videoBox"),stage=document.getElementById("stage");
+ box.classList.remove("playing");void box.offsetWidth;box.classList.add("playing");
+ let i=0;stage.textContent=q.frames[0];
+ const t=setInterval(()=>{i++;if(i>=q.frames.length){clearInterval(t);return;}stage.textContent=q.frames[i]},1650);
+}
+function setupDrag(){
+ document.querySelectorAll(".drag").forEach(el=>{
+   el.addEventListener("dragstart",()=>{dragged=el;el.classList.add("dragging")});
+   el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+ });
+ document.querySelectorAll(".dropzone,.dragbank").forEach(z=>{
+   z.addEventListener("dragover",e=>e.preventDefault());
+   z.addEventListener("drop",e=>{e.preventDefault();if(dragged&&!answered)z.appendChild(dragged)});
+ });
+}
+function check(){
+ if(answered)return;
+ const q=questions[index]; let ok=false;
+ if(["mcq","video","garden"].includes(q.type)){
+   if(selected===null){show("Choose an answer first.",false);return;}
+   ok=selected===q.answer;
+ }
+ if(q.type==="input"){
+   const v=document.getElementById("answerInput").value.trim().replace(/\s/g,"");
+   if(!v){show("Enter an answer first.",false);return;}
+   ok=v===q.answerText;
+ }
+ if(q.type==="dragclass"){
+   let count=0;ok=true;
+   document.querySelectorAll(".classzone").forEach(z=>{
+     z.querySelectorAll(".drag").forEach(d=>{count++;if(d.dataset.type!==z.dataset.accept)ok=false});
+   });
+   if(count!==q.items.length)ok=false;
+ }
+ if(q.type==="dragbuild"){
+   const got=[...document.querySelectorAll("#buildZone .drag")].map(x=>x.dataset.token);
+   ok=JSON.stringify(got)===JSON.stringify(q.answerTokens);
+ }
+ answered=true;
+ if(ok)score++;
+ show((ok?"Correct. ":"Not quite. ")+q.explain,ok);
+ document.getElementById("checkBtn").disabled=true;
+ document.getElementById("nextBtn").classList.remove("hide");
+}
+function show(t,ok){
+ const f=document.getElementById("feedback");f.textContent=t;f.className="feedback "+(ok?"good":"bad");
+}
+function next(){
+ if(index<11){index++;render()}
+ else finish();
+}
+function finish(){
+ document.getElementById("bar").style.width="100%";
+ quiz.innerHTML=`<div class="panel result">
+   <div class="badge">Quiz complete</div>
+   <h2>Your score</h2>
+   <div class="scoreBig">${score}/12</div>
+   <p>${score>=10?"Excellent work.":score>=7?"Good work. Review the identities you missed.":"Review the three identities and try again."}</p>
+   <button onclick="restart()">Try again</button>
+ </div>`;
+}
+function restart(){index=0;score=0;render()}
+render();
+</script>
+</body>
+</html>
